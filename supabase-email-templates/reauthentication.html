@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reauthentication Required - ICU Creative Studio 1</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #000000;
+            border: 1px solid #333333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .header {
+            background: linear-gradient(45deg, #7c2d12, #f59e0b);
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 3px solid #f59e0b;
+        }
+        .metallic-logo {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 25%, #94a3b8 50%, #64748b 75%, #475569 100%);
+            width: auto;
+            height: auto;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 
+                inset 0 1px 0 rgba(255,255,255,0.4),
+                inset 0 -1px 0 rgba(0,0,0,0.2),
+                0 4px 6px rgba(0,0,0,0.1),
+                0 2px 4px rgba(0,0,0,0.06);
+            border: 1px solid rgba(203, 213, 225, 0.5);
+        }
+        .metallic-logo span {
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(to right, #3f3f46, #71717a, #27272a);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.05em;
+            line-height: 1;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+        }
+        .studio-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 10px 0 5px;
+            letter-spacing: 2px;
+            line-height: 1.1;
+        }
+        .studio-text {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .studio-number {
+            color: #ffffff;
+            text-shadow: 0 0 12px rgba(245, 158, 11, 0.8), 0 0 24px rgba(245, 158, 11, 0.6), 0 0 36px rgba(245, 158, 11, 0.4);
+            margin-left: 6px;
+        }
+        .tagline {
+            font-size: 14px;
+            color: #ffffff;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .content {
+            padding: 50px 40px;
+            background: #000000;
+        }
+        .auth-badge {
+            background: linear-gradient(45deg, #f59e0b, #eab308);
+            color: #000000;
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            font-weight: 700;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        .studio-styled {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+        .studio-number-main {
+            color: #ffffff;
+            text-shadow: 0 0 12px rgba(245, 158, 11, 0.8), 0 0 24px rgba(245, 158, 11, 0.6), 0 0 36px rgba(245, 158, 11, 0.4);
+            font-weight: 900;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: #cccccc;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+        .message {
+            font-size: 16px;
+            color: #e0e0e0;
+            margin-bottom: 35px;
+            line-height: 1.7;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #7c2d12, #f59e0b);
+            color: #ffffff;
+            padding: 18px 40px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 20px 0;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+            transition: all 0.3s ease;
+        }
+        .cta-button:hover {
+            background: linear-gradient(45deg, #92400e, #d97706);
+            box-shadow: 0 12px 25px rgba(245, 158, 11, 0.6);
+        }
+        .important-note {
+            background: #111111;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .important-note p {
+            margin: 0;
+            font-size: 14px;
+            color: #cccccc;
+            font-style: italic;
+        }
+        .footer {
+            background: #0a0a0a;
+            padding: 30px 40px;
+            text-align: center;
+            border-top: 1px solid #333333;
+        }
+        .footer-text {
+            font-size: 12px;
+            color: #888888;
+            margin: 0;
+        }
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+            margin: 30px 0;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                border: none;
+            }
+            .content {
+                padding: 30px 20px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            .title {
+                font-size: 24px;
+            }
+            .metallic-logo {
+                width: auto;
+                height: auto;
+                padding: 10px 14px;
+            }
+            .metallic-logo span {
+                font-size: 32px;
+            }
+            .studio-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="metallic-logo">
+                <span>ICU</span>
+            </div>
+            <div class="studio-title">
+                <span class="studio-text">CREATIVE STUDIO</span><span class="studio-number">1</span>
+            </div>
+            <div class="tagline">Private Creative Space</div>
+        </div>
+        
+        <div class="content">
+            <div class="auth-badge">REAUTHENTICATION REQUIRED</div>
+            
+            <h1 class="title">Verify Your Identity</h1>
+            <p class="subtitle">Additional security verification needed</p>
+            
+            <div class="divider"></div>
+            
+            <p class="message">
+                For your security, we need to verify your identity before you can continue accessing ICU Creative Studio 1. This additional step helps protect your account and ensures your reservations remain secure.
+            </p>
+            
+            <div class="important-note">
+                <p><strong>Security Protocol:</strong> This verification is required when accessing sensitive account features or making changes to your profile. Your privacy and security are our top priorities.</p>
+            </div>
+            
+            <p class="message">
+                Click the button below to complete the verification process and continue using your creative workspace.
+            </p>
+            
+            <div style="text-align: center;">
+                <a href="{{ .ConfirmationURL }}" class="cta-button">Verify Identity</a>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <p style="font-size: 14px; color: #999999; margin-top: 30px;">
+                <strong>Why is this needed?</strong><br>
+                Reauthentication helps ensure that only you can access your account, especially when making important changes or accessing sensitive information.<br><br>
+                <strong>Link not working?</strong><br>
+                Copy and paste this URL into your browser:<br>
+                <span style="color: #f59e0b; word-break: break-all;">{{ .ConfirmationURL }}</span>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p class="footer-text">
+                ICU Creative Studio 1 - Private Creative Workspace<br>
+                This verification was triggered by your account activity.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

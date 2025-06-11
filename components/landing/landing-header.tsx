@@ -3,14 +3,6 @@ import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/server"
 import { signOut } from "@/lib/actions"
 import ClientSignOutButton from "@/components/client-signout-button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 
 export default async function LandingHeader() {
   const supabase = await createClient()
@@ -50,23 +42,9 @@ export default async function LandingHeader() {
                 <Button variant="ghost" asChild>
                   <Link href="/auth/login">Member Access</Link>
                 </Button>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button className="bg-gradient-to-r from-primary to-accent text-primary-foreground transition-shadow">
-                      Apply Now
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-black/95 border-border/50 backdrop-blur-sm max-w-md">
-                    <DialogHeader>
-                      <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-2">
-                        Application Slots Full
-                      </DialogTitle>
-                      <DialogDescription className="text-foreground/80">
-                        All studio application slots are currently filled. Please check back next month for new openings.
-                      </DialogDescription>
-                    </DialogHeader>
-                  </DialogContent>
-                </Dialog>
+                <Button className="bg-gradient-to-r from-primary to-accent text-primary-foreground transition-shadow" asChild>
+                  <Link href="/apply">Apply Now</Link>
+                </Button>
               </>
             )}
           </nav>

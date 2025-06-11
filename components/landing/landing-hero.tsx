@@ -6,14 +6,6 @@ import { ArrowRight } from "lucide-react"
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase/client"
 import type { User } from "@supabase/supabase-js"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 
 export default function LandingHero() {
   const [user, setUser] = useState<User | null>(null)
@@ -92,23 +84,11 @@ export default function LandingHero() {
             </Button>
           ) : (
             <>
-              <Dialog>
-                <DialogTrigger asChild onClick={() => console.log("Attempting to open dialog")}>
-                  <Button size="lg" className="h-14 px-8 text-lg">
-                    Apply
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="bg-black/95 border-border/50 backdrop-blur-sm max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-2">
-                      Application Slots Full
-                    </DialogTitle>
-                    <DialogDescription className="text-foreground/80">
-                      All studio application slots are currently filled. Please check back next month for new openings.
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+              <Button size="lg" className="h-14 px-8 text-lg" asChild>
+                <Link href="/apply">
+                  Apply <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
               <Button
                 size="lg"
                 variant="outline"
