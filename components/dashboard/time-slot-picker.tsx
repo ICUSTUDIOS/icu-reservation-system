@@ -529,19 +529,34 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
                   </div>
                 </div>
                 <div className="mt-auto space-y-2">
-                  <Button
-                    onClick={handleBooking}
-                    disabled={isBooking || !showBookingControls}
-                    className={cn(
-                      "w-full h-11 sm:h-12 text-sm sm:text-base text-primary-foreground font-semibold transition-all duration-300 ease-in-out transform active:scale-95",
-                      showBookingControls
-                        ? "bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 opacity-100 shadow-trap-glow hover:shadow-trap-glow-strong"
-                        : "bg-muted/30 text-muted-foreground opacity-60 cursor-not-allowed",
-                    )}
-                  >
-                    {isBooking ? "PROCESSING..." : "LOCK IN SESSION"}{" "}
-                    {!isBooking && <Sparkles className="ml-2 h-4 w-4" />}
-                  </Button>
+                  {/* Check if weekend booking exceeds limit */}
+                  {(() => {
+                    const exceedsWeekendLimit = isWeekend && (weekendSlots.used + weekendSlotsNeeded) > weekendSlots.max;
+                    
+                    return (
+                      <Button
+                        onClick={handleBooking}
+                        disabled={isBooking || !showBookingControls || exceedsWeekendLimit}
+                        className={cn(
+                          "w-full h-11 sm:h-12 text-sm sm:text-base font-semibold transition-all duration-300 ease-in-out transform active:scale-95",
+                          exceedsWeekendLimit
+                            ? "bg-gradient-to-r from-red-600 to-red-500 text-red-100 opacity-60 cursor-not-allowed border border-red-400/50"
+                            : showBookingControls
+                            ? "bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 opacity-100 shadow-trap-glow hover:shadow-trap-glow-strong text-primary-foreground"
+                            : "bg-muted/30 text-muted-foreground opacity-60 cursor-not-allowed",
+                        )}
+                      >
+                        {isBooking 
+                          ? "PROCESSING..." 
+                          : exceedsWeekendLimit 
+                          ? "WEEKEND LIMIT EXCEEDED" 
+                          : "LOCK IN SESSION"
+                        }{" "}
+                        {!isBooking && !exceedsWeekendLimit && <Sparkles className="ml-2 h-4 w-4" />}
+                        {exceedsWeekendLimit && <span className="ml-2">⚠️</span>}
+                      </Button>
+                    );
+                  })()}
                   <Button
                     variant="ghost"
                     size="sm"
@@ -586,16 +601,11 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
                               {weekendSlots.used + weekendSlotsNeeded}/{weekendSlots.max} used
                             </p>
                           </div>
-                          {(weekendSlots.used + weekendSlotsNeeded) > weekendSlots.max && (
-                            <div className="mt-2 p-2 bg-red-500/10 border border-red-500/30 rounded">
-                              <p className="text-xs text-red-400 font-medium">
-                                ⚠️ This booking would exceed your weekend limit!
-                              </p>
-                            </div>
-                          )}
-                          <p className="text-xs text-amber-100/80">
-                            This booking uses your weekend slot limit + points from your main wallet.
-                          </p>
+                          <div className="mt-3 pt-2 border-t border-amber-400/20">
+                            <p className="text-xs text-amber-100/80 leading-relaxed">
+                              This booking uses your weekend slot limit + points from your main wallet.
+                            </p>
+                          </div>
                         </div>
                       </>
                     )}
