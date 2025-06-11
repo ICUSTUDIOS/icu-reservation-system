@@ -18,7 +18,7 @@ Run the migration script to update the database schema and functions:
 #### **Single Wallet System**
 - **40 points per month** (automatically refilled on the 1st of each month)
 - **1 point = 30 minutes** of studio time
-- **Weekend fairness counter** (6 weekend slots max per week)
+- **Weekend fairness counter** (12 weekend slots max per week)
 
 #### **New Pricing Model**
 | Time Period | Cost per 30min slot |
@@ -28,7 +28,7 @@ Run the migration script to update the database schema and functions:
 | Friday (5:00 PM - midnight) + Saturday + Sunday | 3 points |
 
 #### **Weekend Fairness System**
-- Maximum **6 weekend slots (3 hours)** per calendar week
+- Maximum **12 weekend slots (6 hours)** per calendar week
 - Counter resets every Monday at midnight
 - Weekend bookings still deduct points from main wallet
 - Counter just prevents weekend hogging
@@ -41,7 +41,7 @@ Run the migration script to update the database schema and functions:
 
 #### **Wallet Bar**
 - Now shows single "Points" wallet instead of "Monthly/Weekend"
-- Displays weekend slot counter (6 max per week)
+- Displays weekend slot counter (12 max per week)
 - Interactive dialogs explain the new system
 
 #### **Time Slot Picker**  
@@ -75,7 +75,7 @@ After migration, verify:
 2. **Weekend counters reset to 0** (fresh start)
 3. **Booking cost calculation works** (test weekend vs weekday)
 4. **Cancellation refunds work** (test 24h+ vs <24h)
-5. **Weekend slot limiting works** (try to book 7+ weekend slots)
+5. **Weekend slot limiting works** (try to book 13+ weekend slots)
 
 ### 6. Key Benefits
 

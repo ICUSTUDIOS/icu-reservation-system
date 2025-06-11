@@ -65,7 +65,10 @@ export default function LoginForm() {
         </div>
         <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 to-zinc-300">
           Creative Studio{" "}
-          <span className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 drop-shadow-lg trap-text-glow">
+          <span className="text-5xl font-black text-amber-500 drop-shadow-lg"
+                style={{ 
+                  textShadow: '0 0 12px rgba(245, 158, 11, 0.8), 0 0 24px rgba(245, 158, 11, 0.6), 0 0 36px rgba(245, 158, 11, 0.4)' 
+                }}>
             1
           </span>
         </h1>

@@ -33,7 +33,7 @@ DO $$ BEGIN
       ADD COLUMN monthly_points INT NOT NULL DEFAULT 40,           -- Current points in wallet
       ADD COLUMN monthly_points_max INT NOT NULL DEFAULT 40,       -- Max points (40)
       ADD COLUMN weekend_slots_used INT NOT NULL DEFAULT 0,        -- Weekend slots used this week
-      ADD COLUMN weekend_slots_max INT NOT NULL DEFAULT 6,         -- Max weekend slots per week (6)
+      ADD COLUMN weekend_slots_max INT NOT NULL DEFAULT 12,        -- Max weekend slots per week (12)
       ADD COLUMN last_monthly_refresh DATE DEFAULT CURRENT_DATE,   -- Track monthly refresh
       ADD COLUMN last_weekly_reset DATE DEFAULT date_trunc('week', CURRENT_DATE)::DATE; -- Track weekly reset
   END IF;

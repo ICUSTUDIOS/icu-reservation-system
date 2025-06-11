@@ -5,9 +5,9 @@ import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar as CalendarUI } from "@/components/ui/calendar"
-import { createBooking, type Booking } from "@/lib/booking-actions"
+import { createBooking, type Booking, getBookings } from "@/lib/booking-actions"
 import { format, parseISO, isBefore, addMinutes, differenceInMinutes, isEqual, startOfDay } from "date-fns"
-import { Clock, Sparkles, ArrowRight, X, CalendarDays } from "lucide-react"
+import { Clock, Sparkles, ArrowRight, X, CalendarDays, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 
 interface TimeSlotPickerProps {
@@ -21,6 +21,7 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
     end: null,
   })
   const [isBooking, setIsBooking] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const timeSlots = useMemo(() => {
     const slots: string[] = []
@@ -35,49 +36,142 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
     const booked = new Set<string>()
     const currentSelectedDateStr = format(selectedDate, "yyyy-MM-dd")
 
+    console.log(`Calculating booked slots for ${currentSelectedDateStr}`)
+    console.log(`Total bookings available:`, bookings.length)
+
     bookings.forEach((booking) => {
       const bookingStartDate = parseISO(booking.start_time)
-      if (format(bookingStartDate, "yyyy-MM-dd") !== currentSelectedDateStr) {
+      const bookingDateStr = format(bookingStartDate, "yyyy-MM-dd")
+      
+      if (bookingDateStr !== currentSelectedDateStr) {
         return
       }
+      
+      console.log(`Found booking for ${currentSelectedDateStr}:`, booking)
+      
       const bookingEndDate = parseISO(booking.end_time)
       let currentSlotTime = bookingStartDate
-      while (isBefore(currentSlotTime, bookingEndDate)) {
-        booked.add(format(currentSlotTime, "HH:mm"))
+      while (isBefore(currentSlotTime, bookingEndDate)) { // Changed from isBefore to < so end time isn't marked as booked
+        const slotTime = format(currentSlotTime, "HH:mm")
+        booked.add(slotTime)
+        console.log(`Marking slot ${slotTime} as booked`)
         currentSlotTime = addMinutes(currentSlotTime, 30)
       }
     })
+    
+    console.log(`Booked slots for ${currentSelectedDateStr}:`, Array.from(booked))
     return booked
   }, [selectedDate, bookings])
 
+  // Add past slots detection
+  const pastSlots = useMemo(() => {
+    const past = new Set<string>()
+    const now = new Date()
+    const currentSelectedDateStr = format(selectedDate, "yyyy-MM-dd")
+    const todayStr = format(now, "yyyy-MM-dd")
+    
+    // If selected date is in the past, all slots are past
+    if (isBefore(selectedDate, startOfDay(now))) {
+      timeSlots.forEach(slot => past.add(slot))
+      return past
+    }
+    
+    // If selected date is today, mark past time slots
+    if (currentSelectedDateStr === todayStr) {
+      const currentHour = now.getHours()
+      const currentMinute = now.getMinutes()
+      
+      timeSlots.forEach(slot => {
+        const [slotHour, slotMinute] = slot.split(':').map(Number)
+        // Mark slot as past if it's before current time
+        if (slotHour < currentHour || (slotHour === currentHour && slotMinute <= currentMinute)) {
+          past.add(slot)
+        }
+      })
+    }
+    
+    return past
+  }, [selectedDate, timeSlots])
+
   useEffect(() => {
     setSelection({ start: null, end: null })
+    // Clear any cached booking slot states when bookings data changes
+    console.log("Time slot picker refreshed due to booking changes", bookings.length)
   }, [selectedDate, bookings])
 
   const handleSlotClick = (time: string) => {
     if (bookedSlots.has(time)) {
-      toast.error("This slot is part of an existing booking.")
+      toast.error("This slot is already reserved.")
       return
     }
+    
+    if (pastSlots.has(time)) {
+      toast.error("Cannot book time slots in the past.")
+      return
+    }
+    
     const { start, end } = selection
+    
+    // If no start time selected, or if both start and end are selected, start fresh
     if (!start || (start && end)) {
       setSelection({ start: time, end: null })
-    } else {
-      const startIndex = timeSlots.indexOf(start)
-      const clickedIndex = timeSlots.indexOf(time)
-      if (clickedIndex < startIndex) {
-        setSelection({ start: time, end: null })
+      toast.success(`Start time set: ${format(timeStringToDate(time, new Date()), "h:mm a")}. Now click on an end time.`, {
+        duration: 3000
+      })
+      return
+    }
+    
+    // If we have a start time, this click is for the end time
+    const startIndex = timeSlots.indexOf(start)
+    const clickedIndex = timeSlots.indexOf(time)
+    
+    // If clicking the same slot as start, show error
+    if (clickedIndex === startIndex) {
+      toast.error("End time must be different from start time.")
+      return
+    }
+    
+    // If clicking before start time, restart selection
+    if (clickedIndex < startIndex) {
+      setSelection({ start: time, end: null })
+      toast.success(`Start time changed: ${format(timeStringToDate(time, new Date()), "h:mm a")}. Now click on an end time.`, {
+        duration: 3000
+      })
+      return
+    }
+    
+    // Check if any slots in the range are booked or past
+    for (let i = startIndex; i < clickedIndex; i++) { // Note: < not <= because end slot should be available for others
+      if (bookedSlots.has(timeSlots[i])) {
+        toast.error(`Cannot book this range - the ${format(timeStringToDate(timeSlots[i], new Date()), "h:mm a")} slot is already reserved.`)
         return
       }
-      for (let i = startIndex; i <= clickedIndex; i++) {
-        if (bookedSlots.has(timeSlots[i])) {
-          toast.error("Selection overlaps with a booked slot.")
-          setSelection({ start: start, end: null })
-          return
-        }
+      if (pastSlots.has(timeSlots[i])) {
+        toast.error(`Cannot book this range - the ${format(timeStringToDate(timeSlots[i], new Date()), "h:mm a")} slot is in the past.`)
+        return
       }
-      setSelection({ ...selection, end: time })
     }
+    
+    // Set the end time with success feedback
+    setSelection({ start: start, end: time })
+    const duration = calculateDurationForRange(start, time)
+    toast.success(`Time range selected: ${format(timeStringToDate(start, new Date()), "h:mm a")} to ${format(timeStringToDate(time, new Date()), "h:mm a")} (${duration})`, {
+      duration: 4000
+    })
+  }
+
+  const calculateDurationForRange = (startTime: string, endTime: string): string => {
+    const start = timeStringToDate(startTime, selectedDate)
+    const end = timeStringToDate(endTime, selectedDate)
+    
+    const durationMinutes = differenceInMinutes(end, start)
+    
+    if (durationMinutes <= 0) return "30 MIN" // Fallback
+    
+    const hours = Math.floor(durationMinutes / 60)
+    const minutes = durationMinutes % 60
+    
+    return `${hours > 0 ? `${hours} HR ` : ""}${minutes > 0 ? `${minutes} MIN` : ""}`.trim() || "30 MIN"
   }
 
   const timeStringToDate = (timeString: string, baseDate: Date): Date => {
@@ -87,52 +181,93 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
     return date
   }
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    try {
+      // Force a page refresh to get latest booking data
+      window.location.reload()
+    } catch (error) {
+      toast.error("Failed to refresh time slots")
+      setIsRefreshing(false)
+    }
+  }
+
   const handleBooking = async () => {
     if (!selection.start || !selection.end) {
-      toast.error("Please select a valid start and end time.")
+      toast.error("Please select both start and end times.")
       return
     }
     setIsBooking(true)
     const startDateTime = timeStringToDate(selection.start, selectedDate)
-    const endSlotTime = timeStringToDate(selection.end, selectedDate)
-    const endDateTime = addMinutes(endSlotTime, 30)
-
-    if (isBefore(endDateTime, startDateTime) || isEqual(endDateTime, startDateTime)) {
+    const endDateTime = timeStringToDate(selection.end, selectedDate)
+    
+    // Validate time range
+    if (!isBefore(startDateTime, endDateTime)) {
       toast.error("End time must be after start time.")
       setIsBooking(false)
       return
     }
+    
     const result = await createBooking(startDateTime.toISOString(), endDateTime.toISOString())
     if (result.error) {
       toast.error(result.error)
     } else {
       toast.success("Session locked in! Time to create 🔥")
+      setSelection({ start: null, end: null }) // Clear selection after successful booking
+      
+      // Trigger a brief delay to ensure the wallet updates properly
+      setTimeout(() => {
+        // Dispatch a custom event to trigger wallet refresh if real-time fails
+        window.dispatchEvent(new CustomEvent('wallet-refresh-needed'))
+      }, 500)
     }
     setIsBooking(false)
   }
 
   const calculateDuration = (): string => {
-    if (!selection.start || !selection.end) return "0 MIN"
-    const start = timeStringToDate(selection.start, new Date())
-    const end = addMinutes(timeStringToDate(selection.end, new Date()), 30)
-    const diff = differenceInMinutes(end, start)
-    if (diff <= 0) return "0 MIN"
-    const hours = Math.floor(diff / 60)
-    const minutes = diff % 60
-    return `${hours > 0 ? `${hours} HR ` : ""}${minutes > 0 ? `${minutes} MIN` : ""}`.trim()
+    if (!selection.start || !selection.end) return "-- MIN"
+    
+    return calculateDurationForRange(selection.start, selection.end)
   }
 
   const calculateCost = (): { totalCost: number; weekendSlots: number; isWeekend: boolean } => {
     if (!selection.start || !selection.end) return { totalCost: 0, weekendSlots: 0, isWeekend: false }
 
-    const start = timeStringToDate(selection.start, selectedDate)
-    const end = addMinutes(timeStringToDate(selection.end, selectedDate), 30)
-
+    const startTime = timeStringToDate(selection.start, selectedDate)
+    const endTime = timeStringToDate(selection.end, selectedDate)
+    
+    // Handle single slot selection (start === end)
+    if (selection.start === selection.end) {
+      const dayOfWeek = startTime.getDay()
+      const hour = startTime.getHours()
+      
+      let cost = 1 // Default weekday rate
+      let weekendSlots = 0
+      
+      if ((dayOfWeek === 5 && hour >= 17) || dayOfWeek === 0 || dayOfWeek === 6) {
+        cost = 3 // Weekend rate
+        weekendSlots = 1
+      } else if (dayOfWeek >= 1 && dayOfWeek <= 4 && hour >= 17 && hour < 21) {
+        cost = 2 // Weekday evening rate
+      }
+      
+      return { totalCost: cost, weekendSlots, isWeekend: weekendSlots > 0 }
+    }
+    
+    // For range selections, calculate cost for the selected range
+    // User selects 7:30 PM → 8:00 PM = 30 minutes = 1 slot
+    // User selects 7:30 PM → 8:30 PM = 60 minutes = 2 slots
+    
     let totalCost = 0
     let weekendSlots = 0
-    let current = start
-
-    while (current < end) {
+    
+    // Calculate number of 30-minute slots in the selected range
+    const durationMinutes = differenceInMinutes(endTime, startTime)
+    const numberOfSlots = Math.max(1, durationMinutes / 30)
+    
+    // Calculate cost for each slot starting from the start time
+    for (let i = 0; i < numberOfSlots; i++) {
+      const current = addMinutes(startTime, i * 30)
       const dayOfWeek = current.getDay() // 0=Sunday, 1=Monday, ..., 6=Saturday
       const hour = current.getHours()
 
@@ -149,8 +284,6 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
       } else {
         totalCost += 1 // Weekday daytime rate
       }
-
-      current = addMinutes(current, 30)
     }
 
     return { totalCost, weekendSlots, isWeekend: weekendSlots > 0 }
@@ -187,12 +320,10 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
         </CardHeader>
         <CardContent className="p-3 sm:p-4 flex justify-center">
           <CalendarUI
-            mode="single"
             selected={selectedDate}
             onSelect={(date) => date && setSelectedDate(startOfDay(date))}
             disabled={(date) => isBefore(date, startOfDay(new Date()))}
             className="rounded-md"
-            initialFocus
           />
         </CardContent>
       </Card>
@@ -202,12 +333,23 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
           <CardTitle className="flex items-center gap-2.5 text-lg sm:text-xl text-foreground">
             <Clock className="h-5 w-5 text-primary" />
             <span>SELECT TIME - {format(selectedDate, "MMMM d, yyyy").toUpperCase()}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="ml-auto text-xs"
+            >
+              <RefreshCw className={`h-4 w-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
+              {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
           <div className="grid grid-cols-4 xs:grid-cols-5 sm:grid-cols-6 gap-1.5 sm:gap-2">
             {timeSlots.map((time) => {
               const isBooked = bookedSlots.has(time)
+              const isPast = pastSlots.has(time)
               const isStart = selection.start === time
               const isEnd = selection.end === time
               const startIndex = selection.start ? timeSlots.indexOf(selection.start) : -1
@@ -216,7 +358,7 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
                 startIndex !== -1 &&
                 endIndex !== -1 &&
                 timeSlots.indexOf(time) >= startIndex &&
-                timeSlots.indexOf(time) <= endIndex
+                timeSlots.indexOf(time) < endIndex // Changed <= to < so end slot isn't highlighted as "in range"
 
               const pricingTier = getSlotPricingTier(time)
               const isWeekendSlot = pricingTier === 'weekend'
@@ -228,47 +370,54 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
                   key={time}
                   variant="outline"
                   onClick={() => handleSlotClick(time)}
-                  disabled={isBooked}
+                  disabled={isBooked || isPast}
                   className={cn(
                     "h-10 sm:h-11 text-[10px] leading-tight sm:text-xs font-medium transition-all duration-150 ease-in-out p-1 backdrop-blur-sm relative",
-                    // Base pricing tier colors (when not booked/selected)
-                    !isBooked && !isStart && !isEnd && !isInRange && isWeekendSlot && 
+                    // Base pricing tier colors (when not booked/selected/past)
+                    !isBooked && !isPast && !isStart && !isEnd && !isInRange && isWeekendSlot && 
                       "border-orange-500/60 bg-gradient-to-b from-orange-900/40 to-orange-800/30 text-orange-100 hover:bg-gradient-to-b hover:from-orange-800/50 hover:to-orange-700/40 hover:border-orange-400/70",
-                    !isBooked && !isStart && !isEnd && !isInRange && isEveningSlot && 
+                    !isBooked && !isPast && !isStart && !isEnd && !isInRange && isEveningSlot && 
                       "border-yellow-500/60 bg-gradient-to-b from-yellow-900/40 to-yellow-800/30 text-yellow-100 hover:bg-gradient-to-b hover:from-yellow-800/50 hover:to-yellow-700/40 hover:border-yellow-400/70",
-                    !isBooked && !isStart && !isEnd && !isInRange && isWeekdaySlot && 
+                    !isBooked && !isPast && !isStart && !isEnd && !isInRange && isWeekdaySlot && 
                       "border-blue-500/50 bg-gradient-to-b from-blue-900/30 to-blue-800/20 text-blue-100 hover:bg-gradient-to-b hover:from-blue-800/40 hover:to-blue-700/30 hover:border-blue-400/60",
                     // Booked state
                     isBooked && "bg-muted/20 text-muted-foreground cursor-not-allowed hover:bg-muted/20 ring-0 border-muted/30",
+                    // Past state
+                    isPast && "bg-red-950/20 text-red-400/60 cursor-not-allowed hover:bg-red-950/20 ring-0 border-red-800/30 opacity-50",
                     // Selection states (override pricing colors)
                     (isStart || isEnd || isInRange) &&
-                      !isBooked &&
-                      "text-primary-foreground ring-offset-background ring-offset-2",
+                      !isBooked && !isPast &&
+                      "text-white ring-offset-background ring-offset-2 shadow-lg",
                     isStart &&
-                      !isBooked &&
-                      "bg-gradient-to-br from-primary to-accent hover:from-primary/90 hover:to-accent/90 border-transparent ring-2 ring-primary shadow-trap-glow",
+                      !isBooked && !isPast &&
+                      "bg-gradient-to-br from-green-600 to-green-500 hover:from-green-500/90 hover:to-green-400/90 border-transparent ring-2 ring-green-400 shadow-lg shadow-green-500/20",
                     isEnd &&
-                      !isBooked &&
-                      "bg-gradient-to-br from-accent to-primary hover:from-accent/90 hover:to-primary/90 border-transparent ring-2 ring-accent shadow-trap-glow",
+                      !isBooked && !isPast &&
+                      "bg-gradient-to-br from-red-600 to-red-500 hover:from-red-500/90 hover:to-red-400/90 border-transparent ring-2 ring-red-400 shadow-lg shadow-red-500/20",
                     isInRange &&
                       !isStart &&
                       !isEnd &&
-                      !isBooked &&
-                      "bg-gradient-to-r from-primary/30 via-transparent to-accent/30 border-border/30 hover:from-primary/40 hover:to-accent/40 text-foreground",
+                      !isBooked && !isPast &&
+                      "bg-gradient-to-r from-blue-600/70 via-blue-500/50 to-blue-600/70 border-blue-400/60 hover:from-blue-500/80 hover:to-blue-500/80 text-white shadow-md shadow-blue-500/20",
                   )}
                 >
                   <div className="flex flex-col items-center gap-0.5">
                     <span className="leading-none">
                       {format(timeStringToDate(time, new Date()), "h:mm a")}
                     </span>
-                    {!isBooked && !isStart && !isEnd && !isInRange && (
-                      <span className={cn(
-                        "text-[8px] leading-none font-bold opacity-75",
-                        isWeekendSlot ? "text-orange-300/80" : 
-                        isEveningSlot ? "text-yellow-300/80" : 
-                        "text-blue-300/80"
-                      )}>
-                        {isWeekendSlot ? "3pt" : isEveningSlot ? "2pt" : "1pt"}
+                    {isPast && (
+                      <span className="text-[8px] leading-none font-bold text-red-400/60">
+                        PAST
+                      </span>
+                    )}
+                    {isStart && !isBooked && !isPast && (
+                      <span className="text-[8px] leading-none font-bold text-green-100">
+                        START
+                      </span>
+                    )}
+                    {isEnd && !isBooked && !isPast && (
+                      <span className="text-[8px] leading-none font-bold text-red-100">
+                        END
                       </span>
                     )}
                   </div>
@@ -293,7 +442,48 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded border border-muted/30 bg-muted/20"></div>
-              <span className="text-xs text-muted-foreground font-medium">Booked</span>
+              <span className="text-xs text-muted-foreground font-medium">Reserved</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded border border-red-800/30 bg-red-950/20 opacity-50"></div>
+              <span className="text-xs text-red-400/60 font-medium">Past</span>
+            </div>
+          </div>
+
+          {/* Selection Instructions */}
+          <div className="flex items-center justify-center py-3 px-4 bg-gradient-to-r from-blue-950/30 to-purple-950/30 rounded-lg border border-border/30">
+            <div className="text-center">
+              {!selection.start ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-sm font-medium text-foreground">Click on a time slot to set your start time</span>
+                </div>
+              ) : !selection.end ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                  <span className="text-sm font-medium text-foreground">
+                    Start: {format(timeStringToDate(selection.start, new Date()), "h:mm a")} - Now click on an end time
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
+                  <span className="text-sm font-medium text-foreground">
+                    Range selected - Ready to book!
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Booking System Explanation */}
+          <div className="bg-gradient-to-r from-slate-950/50 to-slate-900/50 p-3 rounded-lg border border-border/30">
+            <div className="flex items-start gap-2">
+              <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0"></div>
+              <div className="text-xs text-slate-300 leading-relaxed">
+                <span className="font-medium text-slate-200">How it works:</span> When you book 10:30 to 11:30, you reserve the studio from 10:30 AM until 11:30 AM. 
+                The 11:30 slot remains available for others to book from 11:30 onwards.
+              </div>
             </div>
           </div>
 
@@ -309,7 +499,7 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
                         {selection.end && (
                           <>
                             <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                            <span>{format(addMinutes(timeStringToDate(selection.end, new Date()), 30), "h:mm a")}</span>
+                            <span>{format(timeStringToDate(selection.end, new Date()), "h:mm a")}</span>
                           </>
                         )}
                       </div>
@@ -342,7 +532,10 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
                     variant="ghost"
                     size="sm"
                     className="w-full text-muted-foreground hover:text-foreground hover:bg-black/30 transition-colors h-9 sm:h-10"
-                    onClick={() => setSelection({ start: null, end: null })}
+                    onClick={() => {
+                      setSelection({ start: null, end: null })
+                      toast.info("Selection cleared")
+                    }}
                   >
                     <X className="h-4 w-4 mr-2" />
                     Clear Selection
@@ -384,10 +577,26 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center">
-                <Clock className="h-10 w-10 text-muted-foreground/50 mb-3" />
-                <p className="text-muted-foreground text-sm">Select an available time slot to begin.</p>
-                <p className="text-muted-foreground/70 text-xs mt-1">Click a start time, then an end time.</p>
+              <div className="flex flex-col items-center justify-center h-full text-center py-8">
+                <div className="bg-gradient-to-br from-blue-950/30 to-purple-950/30 rounded-full p-4 mb-4 border border-border/30">
+                  <Clock className="h-8 w-8 text-blue-400" />
+                </div>
+                <p className="text-foreground text-sm font-medium mb-1">Ready to Book Your Session</p>
+                <p className="text-muted-foreground text-xs mb-3">Choose your start and end times from the grid above</p>
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded border bg-green-600/80"></div>
+                    <span>Start</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded border bg-blue-600/80"></div>
+                    <span>Range</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded border bg-red-600/80"></div>
+                    <span>End</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>

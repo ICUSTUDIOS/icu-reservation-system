@@ -207,7 +207,7 @@ export default function ActionButtons() {
                       <p className="font-semibold text-primary mb-2">Booking Guidelines:</p>
                       <ul className="space-y-1 text-sm text-foreground/90">
                         <li>• Reservations up to 2 weeks in advance</li>
-                        <li>• Maximum 6 weekend slots per week</li>
+                        <li>• Maximum 12 weekend slots per week (6 hours total)</li>
                         <li>• Be punctual - sessions start/end on time</li>
                         <li>• Late arrivals forfeit unused time</li>
                       </ul>

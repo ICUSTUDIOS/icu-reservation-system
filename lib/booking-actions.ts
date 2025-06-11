@@ -11,6 +11,7 @@ export interface Booking {
   end_time: string
   points_cost?: number
   slot_type?: string
+  status: string
   created_at: string
   updated_at: string
 }
@@ -27,7 +28,22 @@ export async function createBooking(startTime: string, endTime: string) {
     return { error: "You must be logged in to make a booking" }
   }
 
+  // Validate that booking is not in the past
+  const now = new Date()
+  const bookingStart = parseISO(startTime)
+  const bookingEnd = parseISO(endTime)
+
+  if (bookingStart <= now) {
+    return { error: "Cannot book time slots in the past" }
+  }
+
+  if (bookingEnd <= bookingStart) {
+    return { error: "End time must be after start time" }
+  }
+
   try {
+    console.log("Creating booking with points system...")
+    
     // Use the new enhanced booking function with points system
     const { data, error } = await supabase.rpc("create_booking_with_points", {
       p_member_auth_id: user.id,
@@ -40,7 +56,15 @@ export async function createBooking(startTime: string, endTime: string) {
       return { error: error.message }
     }
 
+    console.log("Booking created successfully, invalidating cache...")
+    
+    // Force revalidation and trigger real-time updates
     revalidatePath("/")
+    revalidatePath("/dashboard")
+    
+    // Add a small delay to ensure database triggers have fired
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
     return { success: true, data: { id: data } }
   } catch (error) {
     console.error("Unexpected error:", error)
@@ -63,6 +87,23 @@ export async function getBookings(date: string) {
 
   if (error) {
     console.error("Error fetching bookings:", error)
+    return []
+  }
+
+  return data as Booking[]
+}
+
+export async function getAllBookings() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("status", "confirmed")  // Only confirmed bookings
+    .order("start_time")
+
+  if (error) {
+    console.error("Error fetching all bookings:", error)
     return []
   }
 
@@ -93,13 +134,14 @@ export async function getUserBookings() {
     return []
   }
 
-  // Then get bookings using the member ID
+  // Get ALL confirmed bookings (past and future) ordered chronologically
+  // This ensures all bookings appear in MY RESERVATIONS section
   const { data, error } = await supabase
     .from("bookings")
     .select("*")
     .eq("member_id", member.id)
-    .gte("start_time", new Date().toISOString())
-    .order("start_time")
+    .eq("status", "confirmed")  // Only show confirmed bookings
+    .order("start_time", { ascending: true })  // Chronological order (earliest first)
 
   if (error) {
     console.error("Error fetching user bookings:", error)
@@ -122,6 +164,8 @@ export async function cancelBooking(bookingId: string) {
   }
 
   try {
+    console.log("Cancelling booking with refund system...")
+    
     // Use the new enhanced cancellation function with refund system
     const { error } = await supabase.rpc("cancel_booking_with_refund", {
       p_member_auth_id: user.id,
@@ -133,7 +177,19 @@ export async function cancelBooking(bookingId: string) {
       return { error: error.message }
     }
 
+    console.log("Booking cancelled successfully, invalidating cache...")
+    
+    // Invalidate all relevant paths to ensure immediate UI updates
     revalidatePath("/")
+    revalidatePath("/dashboard")
+    
+    // Add a small delay to ensure database triggers have fired
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    // Trigger wallet refresh for real-time animation on client side
+    console.log("🔔 Dispatching wallet refresh event after cancellation...")
+    // This will be handled on the client side after the server action completes
+    
     return { success: true }
   } catch (error) {
     console.error("Unexpected error:", error)

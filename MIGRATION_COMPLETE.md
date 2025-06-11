@@ -16,7 +16,7 @@ The ICU Reservation System has been successfully migrated from the **two-wallet 
 
 #### **After (One-Wallet System):**
 - `members.monthly_points` (40 points total)
-- `members.weekend_slots_used` (max 6 weekend slots/week)
+- `members.weekend_slots_used` (max 12 weekend slots/week)
 - `bookings.slot_type` ('weekday' or 'weekend')
 - Simple unified wallet + weekend slot counter
 
@@ -75,7 +75,7 @@ Your one-wallet system is now **LIVE** and ready to use! The frontend code has a
 
 #### **Features Now Available:**
 1. ✅ Single 40-point monthly wallet
-2. ✅ Weekend slot tracking (6 max per week)
+2. ✅ Weekend slot tracking (12 max per week)
 3. ✅ Smart pricing (1pt weekday, 3pt weekend)
 4. ✅ Cancellation policies (100% >24h, 50% <24h)
 5. ✅ Interactive wallet bar with detailed dialogs

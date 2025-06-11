@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#334155;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Apply button gradient: from-primary to-accent -->
+    <linearGradient id="applyButtonGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#b8860b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cc9900;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="96" cy="96" r="90" fill="url(#backgroundGradient)" 
+          stroke="url(#applyButtonGradient)" stroke-width="6"/>
+  
+  <!-- Inner highlight circle -->
+  <circle cx="96" cy="96" r="82" fill="none" 
+          stroke="rgba(255, 255, 255, 0.2)" stroke-width="2"/>
+  
+  <!-- Large Number "1" - matching apply button gradient -->
+  <text x="96" y="135" text-anchor="middle" font-family="Arial Black, sans-serif" 
+        font-size="140" font-weight="900" fill="url(#applyButtonGradient)">1</text>
+  
+  <!-- Shine effect on top -->
+  <ellipse cx="96" cy="50" rx="50" ry="15" fill="rgba(255,255,255,0.2)" opacity="0.8" 
+           transform="rotate(-15 96 50)"/>
+</svg>

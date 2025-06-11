@@ -14,7 +14,7 @@ export default function HeroSection() {
 
       <div className="relative z-10 max-w-3xl mx-auto">
         {/* RESERVE YOUR TIME Section */}
-        <h2 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 via-zinc-200 to-amber-300 mb-5 tracking-tight trap-text-glow">
+        <h2 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 via-zinc-200 to-amber-300 mb-5 tracking-tight">
           RESERVE YOUR TIME
         </h2>
         <div className="h-2 w-24 bg-gradient-to-r from-primary to-accent mx-auto mb-8 rounded-full shadow-trap-glow"></div>
@@ -90,7 +90,7 @@ export default function HeroSection() {
                 <div>
                   <p className="text-foreground font-semibold text-amber-400 mb-1">Weekend Limit (Not Extra Points!):</p>
                   <p className="text-foreground/90 text-sm">
-                    You can book maximum <span className="font-bold text-orange-400">6 weekend slots</span> per week for fairness. 
+                    You can book maximum <span className="font-bold text-orange-400">12 weekend slots</span> per week for fairness (6 hours total). 
                     Weekend bookings still use points from your main wallet.
                   </p>
                 </div>

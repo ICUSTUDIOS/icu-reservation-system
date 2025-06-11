@@ -8,13 +8,43 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { Wallet, Zap, AlertTriangle, HelpCircle, Calendar, Clock } from "lucide-react"
+import { Wallet, Zap, AlertTriangle, HelpCircle, Calendar, Clock, RefreshCw } from "lucide-react"
 import type { RealtimeChannel } from "@supabase/supabase-js" // Import type for RealtimeChannel
 
 export default function WalletBar() {
   const [wallet, setWallet] = useState<WalletInfo | null>(null)
   const [loading, setLoading] = useState(true)
+  const [previousPoints, setPreviousPoints] = useState<number | null>(null)
+  const [pointsChanging, setPointsChanging] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const channelRef = useRef<RealtimeChannel | null>(null) // Ref to store the channel instance
+
+  // Manual refresh function
+  const refreshWallet = async () => {
+    console.log("🔄 Manually refreshing wallet...")
+    setRefreshing(true)
+    try {
+      const updatedWallet = await getMyWalletAction()
+      if (updatedWallet.data) {
+        setWallet(prevWallet => {
+          // Animate points change if there's a difference
+          if (prevWallet && updatedWallet.data && updatedWallet.data.monthly_points !== prevWallet.monthly_points) {
+            const pointsDiff = updatedWallet.data.monthly_points - prevWallet.monthly_points
+            setPreviousPoints(prevWallet.monthly_points)
+            setPointsChanging(true)
+            setTimeout(() => setPointsChanging(false), 1500)
+            
+            // Visual feedback through bar animations only (no toast notifications)
+            console.log(`✨ Manual refresh animation triggered: ${Math.abs(pointsDiff)} points ${pointsDiff > 0 ? 'refunded' : 'used'}`)
+          }
+          return updatedWallet.data || prevWallet
+        })
+      }
+    } catch (error) {
+      console.error("Error refreshing wallet:", error)
+    }
+    setRefreshing(false)
+  }
 
   useEffect(() => {
     async function fetchInitialWallet() {
@@ -31,46 +61,85 @@ export default function WalletBar() {
 
     fetchInitialWallet()
 
+    // Listen for manual wallet refresh events
+    const handleWalletRefresh = () => {
+      console.log("🔔 Received wallet refresh event")
+      refreshWallet()
+    }
+    
+    window.addEventListener('wallet-refresh-needed', handleWalletRefresh)
+
     // Ensure channel is only created and subscribed once
     if (!channelRef.current) {
       channelRef.current = supabase
         .channel("wallet-updates")
         .on("postgres_changes", { event: "*", schema: "public", table: "members" }, async (payload) => {
-          console.log("Member data changed, refreshing wallet:", payload)
+          console.log("📊 Member data changed, refreshing wallet:", payload)
           const updatedWallet = await getMyWalletAction()
           if (updatedWallet.data) {
-            setWallet(updatedWallet.data)
+            setWallet(prevWallet => {
+              // Animate points change using the previous wallet state
+              if (prevWallet && updatedWallet.data && updatedWallet.data.monthly_points !== prevWallet.monthly_points) {
+                const pointsDiff = updatedWallet.data.monthly_points - prevWallet.monthly_points
+                console.log(`💰 Points changed: ${prevWallet.monthly_points} → ${updatedWallet.data.monthly_points} (${pointsDiff > 0 ? '+' : ''}${pointsDiff})`)
+                setPreviousPoints(prevWallet.monthly_points)
+                setPointsChanging(true)
+                setTimeout(() => setPointsChanging(false), 1500) // Animation duration
+                
+                // Visual feedback through bar animations only (no toast notifications)
+                console.log(`✨ Points animation triggered: ${pointsDiff > 0 ? '+' : ''}${pointsDiff}`)
+              }
+              return updatedWallet.data || prevWallet
+            })
           }
         })
-        .on("postgres_changes", { event: "INSERT", schema: "public", table: "point_ledger" }, async (payload) => {
-          console.log("Point ledger updated, refreshing wallet:", payload)
-          const updatedWallet = await getMyWalletAction()
-          if (updatedWallet.data) {
-            setWallet(updatedWallet.data)
-          }
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "points_transactions" }, async (payload) => {
+          console.log("💳 Points transaction created, refreshing wallet:", payload)
+          await refreshWallet() // Use the manual refresh function for consistency
+        })
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "bookings" }, async (payload) => {
+          console.log("📅 New booking created, refreshing wallet:", payload)
+          await refreshWallet() // Use the manual refresh function for consistency
+        })
+        .on("postgres_changes", { event: "DELETE", schema: "public", table: "bookings" }, async (payload) => {
+          console.log("❌ Booking cancelled, refreshing wallet:", payload)
+          await refreshWallet() // Use the manual refresh function for consistency
+        })
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "bookings" }, async (payload) => {
+          console.log("📝 Booking updated, refreshing wallet:", payload)
+          await refreshWallet() // Use the manual refresh function for consistency
         })
         // .subscribe() is called only once after all .on() listeners are attached
         .subscribe((status, err) => {
+          console.log("Wallet subscription status:", status, err)
           if (status === "SUBSCRIBED") {
-            console.log("Subscribed to wallet updates!")
+            console.log("✅ Subscribed to wallet updates!")
           } else if (status === "CHANNEL_ERROR") {
-            console.error("Subscription Error:", err)
-            toast.error("Real-time wallet update failed.")
+            console.error("❌ Wallet subscription error:", err)
+            // Only show error if it's a persistent connection issue, not on page reload
+            if (err && !err.message?.includes('WebSocket')) {
+              toast.error("Real-time wallet update failed.")
+            }
           } else if (status === "TIMED_OUT") {
-            console.warn("Subscription timed out.")
+            console.warn("⏰ Wallet subscription timed out - will retry")
+            // Don't show error for timeouts as they're usually temporary
           } else if (status === "CLOSED") {
-            console.log("Subscription closed.")
+            console.log("🔌 Wallet subscription closed")
           }
         })
     }
 
     // Cleanup function
     return () => {
+      // Remove event listener
+      window.removeEventListener('wallet-refresh-needed', handleWalletRefresh)
+      
       if (channelRef.current) {
+        console.log("🧹 Cleaning up wallet subscription...")
         supabase
           .removeChannel(channelRef.current)
-          .then(() => console.log("Successfully removed channel"))
-          .catch((err) => console.error("Error removing channel:", err))
+          .then(() => console.log("✅ Successfully removed wallet channel"))
+          .catch((err) => console.error("❌ Error removing wallet channel:", err))
         channelRef.current = null // Reset ref after removing
       }
     }
@@ -106,38 +175,66 @@ export default function WalletBar() {
 
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/90 backdrop-blur-sm border border-white/5"
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/90 backdrop-blur-sm border border-white/5 relative"
            style={{
              boxShadow: `
                inset 0 4px 8px rgba(0,0,0,0.9),
                inset 0 2px 4px rgba(0,0,0,0.8),
                inset 0 1px 2px rgba(0,0,0,0.7),
                0 1px 2px rgba(255,255,255,0.1)
-             `
+             `,
+             overflow: 'visible'
            }}>
+        
+        {/* Manual Refresh Button */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={refreshWallet}
+              disabled={refreshing}
+              className="h-6 w-6 p-0 hover:bg-white/10 transition-all duration-200"
+            >
+              <RefreshCw className={`h-3 w-3 text-primary/70 hover:text-primary ${refreshing ? 'animate-spin' : ''}`} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Refresh wallet</p>
+          </TooltipContent>
+        </Tooltip>
+
         <Dialog>
           <DialogTrigger asChild>
-            <div className="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded-full transition-all duration-200 group">
+            <div className="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded-full transition-all duration-200 group relative" style={{ overflow: 'visible' }}>
               <Wallet className="h-4 w-4 text-primary group-hover:text-accent transition-colors" />
-              <div className="flex flex-col min-w-0 flex-1">
-                <div className="flex items-center gap-1 mb-1">
+              <div className="flex flex-col min-w-0 flex-1 relative" style={{ overflow: 'visible' }}>
+                <div className="flex items-center gap-1 mb-1 relative" style={{ overflow: 'visible' }}>
                   <span className="text-sm font-medium text-foreground/90">Points</span>
-                  <span className={`text-sm font-bold ${
-                    wallet.monthly_points <= 5 ? 'text-red-400' : 
-                    wallet.monthly_points <= 15 ? 'text-yellow-400' : 
-                    'text-primary'
-                  }`}>{wallet.monthly_points}</span>
+                  <div className="relative overflow-visible">
+                    <span className={`text-sm font-bold transition-all duration-500 ${
+                      pointsChanging ? 'transform scale-110' : ''
+                    } ${
+                      wallet.monthly_points <= 5 ? 'text-red-400' : 
+                      wallet.monthly_points <= 15 ? 'text-yellow-400' : 
+                      'text-primary'
+                    }`}>
+                      {wallet.monthly_points}
+                    </span>
+                  </div>
                   <span className="text-sm text-foreground/60">/{wallet.monthly_points_max}</span>
                 </div>
-                <div className="relative w-24 h-2 bg-black/50 rounded-full border border-white/20 overflow-hidden">
+                <div className={`relative w-24 h-2 bg-black/50 rounded-full border border-white/20 overflow-hidden transition-all duration-300 ${
+                  pointsChanging ? 'ring-2 ring-primary/50 ring-opacity-75 animate-pulse' : ''
+                }`}>
                   <div 
-                    className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-out ${
+                    className={`absolute top-0 left-0 h-full rounded-full transition-all duration-700 ease-out ${
                       wallet.monthly_points <= 5 
                         ? 'bg-gradient-to-r from-red-500 to-red-400 shadow-[0_0_8px_rgba(239,68,68,0.6)]' 
                         : wallet.monthly_points <= 15 
                         ? 'bg-gradient-to-r from-yellow-500 to-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.6)]' 
                         : 'bg-gradient-to-r from-primary to-accent shadow-[0_0_8px_rgba(59,130,246,0.6)]'
-                    }`}
+                    } ${pointsChanging ? 'animate-pulse' : ''}`}
                     style={{ width: `${monthlyPct}%` }}
                   />
                   {/* Background pattern for empty portion */}
@@ -220,13 +317,13 @@ export default function WalletBar() {
               <Calendar className="h-4 w-4 text-orange-500 group-hover:text-orange-400 transition-colors" />
               <div className="flex flex-col min-w-0 flex-1">
                 <div className="flex items-center gap-1 mb-1">
-                  <span className="text-xs font-medium text-foreground/90">Weekend Limit</span>
+                  <span className="text-xs font-medium text-foreground/90">Weekend Slots</span>
                   <span className={`text-xs font-bold ${
                     weekendSlotsRemaining === 0 ? 'text-red-400' : 
                     weekendSlotsRemaining <= 2 ? 'text-yellow-400' : 
                     'text-orange-400'
                   }`}>{weekendSlotsRemaining}</span>
-                  <span className="text-xs text-foreground/60">/{wallet.weekend_slots_max} left</span>
+                  <span className="text-xs text-foreground/60">/{wallet.weekend_slots_max} slots left</span>
                 </div>
                 <div className="relative w-20 h-1.5 bg-black/50 rounded-full border border-white/20 overflow-hidden">
                   <div 
@@ -278,6 +375,9 @@ export default function WalletBar() {
                   <p className="text-foreground/80 text-sm">
                     Weekend times: Friday 5pm onwards + all day Saturday & Sunday.
                   </p>
+                  <p className="text-foreground/80 text-xs bg-amber-500/20 border border-amber-400/50 rounded p-2">
+                    <strong>Remember:</strong> Each weekend slot costs 3 points from your main wallet. Maximum 3 hours (6 slots) per weekend = 18 points total.
+                  </p>
                 </div>
               </div>
 
@@ -306,7 +406,7 @@ export default function WalletBar() {
                     <p className="text-foreground font-semibold text-blue-400 mb-2">How It Works:</p>
                     <ul className="text-foreground/90 text-sm space-y-1">
                       <li>• Weekend bookings cost <strong>3 points each</strong> from your main wallet</li>
-                      <li>• You can only make <strong>{wallet.weekend_slots_max} weekend bookings</strong> per week maximum</li>
+                      <li>• You can only make <strong>6 weekend bookings</strong> per week maximum (3 hours total)</li>
                       <li>• This prevents anyone from using all weekend slots</li>
                       <li>• Your weekend limit resets every Monday</li>
                     </ul>
@@ -318,7 +418,7 @@ export default function WalletBar() {
                 <Clock className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
                 <p className="text-foreground">
                   <span className="font-semibold text-accent">Next Reset:</span> Your weekend limit resets to{" "}
-                  <span className="font-bold text-orange-400">{wallet.weekend_slots_max} available slots</span> next Monday at midnight.
+                  <span className="font-bold text-orange-400">6 available slots</span> next Monday at midnight.
                 </p>
               </div>
             </div>

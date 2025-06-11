@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { LogOut, Shield } from "lucide-react"
 import { signOut } from "@/lib/actions"
 import ClientSignOutButton from "@/components/client-signout-button"
-import { getBookings, getUserBookings } from "@/lib/booking-actions"
+import { getBookings, getUserBookings, getAllBookings } from "@/lib/booking-actions"
 import TimeSlotPicker from "@/components/dashboard/time-slot-picker"
 import MyBookings from "@/components/dashboard/my-bookings"
 import HeroSection from "@/components/dashboard/hero-section"
@@ -12,6 +12,12 @@ import ActionButtons from "@/components/dashboard/action-buttons"
 import { Toaster } from "sonner"
 import WalletBar from "@/components/dashboard/wallet-bar"
 import Link from "next/link"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Access & Reservation | ICU",
+  description: "Book studio time and manage your reservations.",
+}
 
 export default async function Home() {
   if (!isSupabaseConfigured) {
@@ -40,8 +46,8 @@ export default async function Home() {
 
   const isAdmin = member && ['admin', 'super_admin'].includes(member.role)
 
-  const today = new Date().toISOString().split("T")[0]
-  const [todayBookings, userBookings] = await Promise.all([getBookings(today), getUserBookings()])
+  // Get all bookings for the time slot picker and user's bookings for the reservations section
+  const [allBookings, userBookings] = await Promise.all([getAllBookings(), getUserBookings()])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-background to-zinc-950 text-foreground">
@@ -75,7 +81,10 @@ export default async function Home() {
               <div>
                 <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 to-zinc-300 tracking-tight">
                   Creative Studio{" "}
-                  <span className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 drop-shadow-lg trap-text-glow">
+                  <span className="text-3xl font-black text-amber-500 drop-shadow-lg"
+                        style={{ 
+                          textShadow: '0 0 12px rgba(245, 158, 11, 0.8), 0 0 24px rgba(245, 158, 11, 0.6), 0 0 36px rgba(245, 158, 11, 0.4)' 
+                        }}>
                     1
                   </span>
                 </h1>
@@ -162,7 +171,7 @@ export default async function Home() {
         <div className="space-y-12">
           <ActionButtons />
           <HeroSection />
-          <TimeSlotPicker bookings={todayBookings} />
+          <TimeSlotPicker bookings={allBookings} />
           <MyBookings bookings={userBookings} />
         </div>
       </main>

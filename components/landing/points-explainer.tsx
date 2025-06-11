@@ -54,7 +54,7 @@ export default function PointsExplainer() {
               <h3 className="text-lg font-semibold">Fair Weekend Access</h3>
               <p className="text-muted-foreground">
                 To ensure everyone gets a chance, peak "Red Zone" time is capped at{" "}
-                <span className="font-bold text-red-400">3 hours</span> per member, per week.
+                <span className="font-bold text-red-400">6 hours</span> per member, per week.
               </p>
             </div>
           </div>
