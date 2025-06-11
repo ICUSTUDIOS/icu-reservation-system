@@ -44,11 +44,7 @@ export default function LoginForm() {
   const router = useRouter()
   const [state, formAction] = useActionState(signIn, null)
 
-  useEffect(() => {
-    if (state?.success) {
-      router.push("/dashboard") // Redirect to the dashboard after login
-    }
-  }, [state, router])
+  // Note: Server-side redirect handles success, so no need for client-side redirect
 
   return (
     <div className="w-full max-w-md space-y-8 p-8 bg-black/80 backdrop-blur-sm border border-border/30 rounded-xl shadow-2xl shadow-black/50">

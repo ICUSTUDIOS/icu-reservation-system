@@ -1,5 +1,8 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { createClient } from "@/lib/supabase/server"
+import { signOut } from "@/lib/actions"
+import ClientSignOutButton from "@/components/client-signout-button"
 import {
   Dialog,
   DialogContent,
@@ -9,7 +12,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-export default function LandingHeader() {
+export default async function LandingHeader() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/30 bg-black/80 backdrop-blur-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,26 +33,39 @@ export default function LandingHeader() {
             </div>
           </Link>
           <nav className="flex items-center gap-4">
-            <Button variant="ghost" asChild>
-              <Link href="/auth/login">Member Access</Link>
-            </Button>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-primary to-accent text-primary-foreground transition-shadow">
-                  Apply Now
+            {user ? (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href="/dashboard">Dashboard</Link>
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-black/95 border-border/50 backdrop-blur-sm max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-2">
-                    Application Slots Full
-                  </DialogTitle>
-                  <DialogDescription className="text-foreground/80">
-                    All studio application slots are currently filled. Please check back next month for new openings.
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+                <ClientSignOutButton variant="outline">
+                  Sign Out
+                </ClientSignOutButton>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href="/auth/login">Member Access</Link>
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="bg-gradient-to-r from-primary to-accent text-primary-foreground transition-shadow">
+                      Apply Now
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-black/95 border-border/50 backdrop-blur-sm max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-2">
+                        Application Slots Full
+                      </DialogTitle>
+                      <DialogDescription className="text-foreground/80">
+                        All studio application slots are currently filled. Please check back next month for new openings.
+                      </DialogDescription>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
+              </>
+            )}
           </nav>
         </div>
       </div>

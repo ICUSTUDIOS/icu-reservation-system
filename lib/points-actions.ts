@@ -1,6 +1,6 @@
 "use server"
 
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs"
+import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 
@@ -18,13 +18,36 @@ export interface BookingSlot {
 }
 
 export interface WalletInfo {
-  wallet_points: number
-  red_points_week: number
+  monthly_points: number
+  monthly_points_max: number
+  weekend_slots_used: number
+  weekend_slots_max: number
 }
 
 export async function reserveSlotAction(bookingSlotId: string): Promise<{ data?: BookingSlot; error?: string }> {
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options)
+            })
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  )
 
   const {
     data: { user },
@@ -50,8 +73,29 @@ export async function reserveSlotAction(bookingSlotId: string): Promise<{ data?:
 }
 
 export async function cancelSlotAction(bookingSlotId: string): Promise<{ data?: BookingSlot; error?: string }> {
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options)
+            })
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  )
 
   const {
     data: { user },
@@ -77,8 +121,29 @@ export async function cancelSlotAction(bookingSlotId: string): Promise<{ data?: 
 }
 
 export async function getMyWalletAction(): Promise<{ data?: WalletInfo; error?: string }> {
-  const cookieStore = cookies()
-  const supabase = createServerActionClient({ cookies: () => cookieStore })
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options)
+            })
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  )
 
   const {
     data: { user }, // We need the user context for RLS on 'members' table
@@ -91,7 +156,7 @@ export async function getMyWalletAction(): Promise<{ data?: WalletInfo; error?: 
 
   const { data, error: dbError } = await supabase
     .from("members")
-    .select("wallet_points, red_points_week")
+    .select("monthly_points, monthly_points_max, weekend_slots_used, weekend_slots_max")
     .eq("auth_id", user.id) // RLS will also enforce this, but explicit is good
     .single()
 

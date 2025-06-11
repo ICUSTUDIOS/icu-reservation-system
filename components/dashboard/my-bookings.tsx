@@ -21,7 +21,7 @@ export default function MyBookings({ bookings }: MyBookingsProps) {
     if (result.error) {
       toast.error(result.error)
     } else {
-      toast.success("Booking cancelled")
+      toast.success("Reservation cancelled")
     }
     setCancellingId(null)
   }
@@ -43,13 +43,13 @@ export default function MyBookings({ bookings }: MyBookingsProps) {
         <CardHeader className="border-b border-border/50 bg-card/50">
           <CardTitle className="flex items-center gap-2.5 text-lg sm:text-xl text-foreground">
             <Sparkles className="h-5 w-5 text-primary" />
-            <span>MY BOOKINGS</span>
+            <span>MY RESERVATIONS</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-12">
           <div className="text-center">
             <Lightbulb className="h-12 w-12 mx-auto text-muted-foreground/40 mb-4" />
-            <p className="text-muted-foreground text-lg">You have no upcoming bookings.</p>
+            <p className="text-muted-foreground text-lg">You have no upcoming reservations.</p>
             <p className="text-muted-foreground/70 mt-2">Reserve studio time to get started.</p>
           </div>
         </CardContent>
@@ -62,7 +62,7 @@ export default function MyBookings({ bookings }: MyBookingsProps) {
       <CardHeader className="border-b border-border/50 bg-card/50">
         <CardTitle className="flex items-center gap-2.5 text-lg sm:text-xl text-foreground">
           <Sparkles className="h-5 w-5 text-primary" />
-          <span>MY BOOKINGS ({bookings.length})</span>
+          <span>MY RESERVATIONS ({bookings.length})</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6 space-y-4">

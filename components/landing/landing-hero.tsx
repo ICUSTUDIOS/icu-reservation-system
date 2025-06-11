@@ -2,7 +2,10 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react" // Removed Sparkles import as it's no longer used
+import { ArrowRight } from "lucide-react"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase/client"
+import type { User } from "@supabase/supabase-js"
 import {
   Dialog,
   DialogContent,
@@ -13,6 +16,38 @@ import {
 } from "@/components/ui/dialog"
 
 export default function LandingHero() {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Get initial user
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user ?? null)
+      setLoading(false)
+    })
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+      
+      // If user signs out, ensure we clear the state immediately
+      if (_event === 'SIGNED_OUT') {
+        setUser(null)
+        // Clear any potential cached state
+        if (typeof window !== 'undefined') {
+          // Force a complete refresh to ensure clean state
+          setTimeout(() => {
+            window.location.reload()
+          }, 100)
+        }
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
   return (
     <section className="relative py-28 sm:py-40">
       <div className="absolute inset-0 bg-[url('/dark-abstract-studio.png')] bg-center bg-cover opacity-10 mix-blend-soft-light -z-10"></div>
@@ -41,33 +76,51 @@ export default function LandingHero() {
           professional studio, managed by a fair, point-based system that makes sharing simple and equitable.
         </p>
         <div className="flex justify-center gap-4">
-          <Dialog>
-            <DialogTrigger asChild onClick={() => console.log("Attempting to open dialog")}>
-              <Button size="lg" className="h-14 px-8 text-lg">
-                Apply
+          {loading ? (
+            <Button size="lg" className="h-14 px-8 text-lg" disabled>
+              Loading...
+            </Button>
+          ) : user ? (
+            <Button
+              size="lg"
+              className="h-14 px-8 text-lg bg-gradient-to-r from-primary to-accent"
+              asChild
+            >
+              <Link href="/dashboard">
+                Go to Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          ) : (
+            <>
+              <Dialog>
+                <DialogTrigger asChild onClick={() => console.log("Attempting to open dialog")}>
+                  <Button size="lg" className="h-14 px-8 text-lg">
+                    Apply
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-black/95 border-border/50 backdrop-blur-sm max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-2">
+                      Application Slots Full
+                    </DialogTitle>
+                    <DialogDescription className="text-foreground/80">
+                      All studio application slots are currently filled. Please check back next month for new openings.
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-14 px-8 text-lg bg-black/50 border-border/50 backdrop-blur-sm"
+                asChild
+              >
+                <Link href="/auth/login">
+                  Access <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
               </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-black/95 border-border/50 backdrop-blur-sm max-w-md">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-2">
-                  Application Slots Full
-                </DialogTitle>
-                <DialogDescription className="text-foreground/80">
-                  All studio application slots are currently filled. Please check back next month for new openings.
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
-          <Button
-            size="lg"
-            variant="outline"
-            className="h-14 px-8 text-lg bg-black/50 border-border/50 backdrop-blur-sm"
-            asChild
-          >
-            <Link href="/auth/login">
-              Access <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
+            </>
+          )}
         </div>
       </div>
     </section>
