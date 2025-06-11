@@ -1,0 +1,16 @@
+# Vercel ignore file
+.next/
+node_modules/
+.git/
+*.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+pnpm-lock.yaml
+*.bak
+*.old
+*.backup
+*~
+.DS_Store
+Thumbs.db
