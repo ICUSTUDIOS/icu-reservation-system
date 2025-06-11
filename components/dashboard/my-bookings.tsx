@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -14,8 +14,14 @@ interface MyBookingsProps {
   bookings: Booking[]
 }
 
-export default function MyBookings({ bookings }: MyBookingsProps) {
+export default function MyBookings({ bookings: initialBookings }: MyBookingsProps) {
+  const [bookings, setBookings] = useState<Booking[]>(initialBookings)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
+
+  // Update local bookings when initial bookings change (page refresh)
+  useEffect(() => {
+    setBookings(initialBookings)
+  }, [initialBookings])
 
   const handleCancel = async (bookingId: string) => {
     setCancellingId(bookingId)
@@ -23,6 +29,9 @@ export default function MyBookings({ bookings }: MyBookingsProps) {
     if (result.error) {
       toast.error(result.error)
     } else {
+      // Immediately remove the booking from local state for instant UI update
+      setBookings(prevBookings => prevBookings.filter(booking => booking.id !== bookingId))
+      
       toast.success("Reservation cancelled - Time slot is now available for booking!")
       
       // Trigger wallet refresh animation after successful cancellation

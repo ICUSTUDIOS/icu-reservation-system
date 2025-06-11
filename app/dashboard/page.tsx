@@ -47,7 +47,21 @@ export default async function Home() {
   const isAdmin = member && ['admin', 'super_admin'].includes(member.role)
 
   // Get all bookings for the time slot picker and user's bookings for the reservations section
-  const [allBookings, userBookings] = await Promise.all([getAllBookings(), getUserBookings()])
+  const [allBookings, userBookings, memberData] = await Promise.all([
+    getAllBookings(), 
+    getUserBookings(),
+    supabase
+      .from('members')
+      .select('weekend_slots_used, weekend_slots_max')
+      .eq('auth_id', user.id)
+      .single()
+  ])
+
+  // Extract weekend slot info for the time slot picker
+  const weekendSlotInfo = memberData.data ? {
+    used: memberData.data.weekend_slots_used,
+    max: memberData.data.weekend_slots_max
+  } : { used: 0, max: 6 } // fallback
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-background to-zinc-950 text-foreground">
@@ -171,7 +185,7 @@ export default async function Home() {
         <div className="space-y-12">
           <ActionButtons />
           <HeroSection />
-          <TimeSlotPicker bookings={allBookings} />
+          <TimeSlotPicker bookings={allBookings} weekendSlots={weekendSlotInfo} />
           <MyBookings bookings={userBookings} />
         </div>
       </main>

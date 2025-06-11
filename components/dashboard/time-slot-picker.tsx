@@ -12,9 +12,13 @@ import { toast } from "sonner"
 
 interface TimeSlotPickerProps {
   bookings: Booking[]
+  weekendSlots: {
+    used: number
+    max: number
+  }
 }
 
-export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
+export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPickerProps) {
   const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()))
   const [selection, setSelection] = useState<{ start: string | null; end: string | null }>({
     start: null,
@@ -197,6 +201,17 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
       toast.error("Please select both start and end times.")
       return
     }
+    
+    // Validate weekend slot limits before submitting
+    const { weekendSlots: slotsNeeded, isWeekend } = calculateCost()
+    if (isWeekend && (weekendSlots.used + slotsNeeded) > weekendSlots.max) {
+      const remaining = weekendSlots.max - weekendSlots.used
+      toast.error(
+        `Weekend slot limit exceeded! You need ${slotsNeeded} slots but have only ${remaining} remaining (${weekendSlots.used}/${weekendSlots.max} used).`
+      )
+      return
+    }
+    
     setIsBooking(true)
     const startDateTime = timeStringToDate(selection.start, selectedDate)
     const endDateTime = timeStringToDate(selection.end, selectedDate)
@@ -306,8 +321,7 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
   }
 
   const showBookingControls = !!(selection.start && selection.end)
-
-  const { totalCost, weekendSlots, isWeekend } = calculateCost()
+  const { totalCost, weekendSlots: weekendSlotsNeeded, isWeekend } = calculateCost()
 
   return (
     <div id="time-slot-picker" className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
@@ -556,9 +570,29 @@ export default function TimeSlotPicker({ bookings }: TimeSlotPickerProps) {
                           <div className="flex justify-between items-center mb-1">
                             <p className="text-xs font-medium text-amber-400">Weekend Rate Applied:</p>
                             <p className="text-sm font-medium text-amber-300">
-                              {weekendSlots} slot{weekendSlots > 1 ? "s" : ""} × 3 points each
+                              {weekendSlotsNeeded} slot{weekendSlotsNeeded > 1 ? "s" : ""} × 3 points each
                             </p>
                           </div>
+                          <div className="flex justify-between items-center mt-2 pt-2 border-t border-amber-400/20">
+                            <p className="text-xs font-medium text-amber-400">Weekend Slots:</p>
+                            <p className={cn(
+                              "text-sm font-medium",
+                              (weekendSlots.used + weekendSlotsNeeded) > weekendSlots.max 
+                                ? "text-red-400" 
+                                : (weekendSlots.used + weekendSlotsNeeded) === weekendSlots.max
+                                ? "text-orange-400"
+                                : "text-amber-300"
+                            )}>
+                              {weekendSlots.used + weekendSlotsNeeded}/{weekendSlots.max} used
+                            </p>
+                          </div>
+                          {(weekendSlots.used + weekendSlotsNeeded) > weekendSlots.max && (
+                            <div className="mt-2 p-2 bg-red-500/10 border border-red-500/30 rounded">
+                              <p className="text-xs text-red-400 font-medium">
+                                ⚠️ This booking would exceed your weekend limit!
+                              </p>
+                            </div>
+                          )}
                           <p className="text-xs text-amber-100/80">
                             This booking uses your weekend slot limit + points from your main wallet.
                           </p>
