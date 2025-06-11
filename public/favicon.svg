@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <!-- Metallic gradient background -->
+    <linearGradient id="metalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e2e8f0;stop-opacity:1" />
+      <stop offset="25%" style="stop-color:#cbd5e1;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#94a3b8;stop-opacity:1" />
+      <stop offset="75%" style="stop-color:#64748b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#475569;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Apply button gradient: from-primary to-accent -->
+    <linearGradient id="applyButtonGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#b8860b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cc9900;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect x="1" y="1" width="30" height="30" rx="6" fill="url(#metalGradient)" 
+        stroke="url(#applyButtonGradient)" stroke-width="1"/>
+  
+  <!-- Inner highlight -->
+  <rect x="2" y="2" width="28" height="28" rx="5" fill="none" 
+        stroke="rgba(255, 255, 255, 0.4)" stroke-width="0.5"/>
+  
+  <!-- Large Number "1" - matching apply button gradient -->
+  <text x="16" y="26" text-anchor="middle" font-family="Arial Black, sans-serif" 
+        font-size="26" font-weight="900" fill="url(#applyButtonGradient)">1</text>
+</svg>
