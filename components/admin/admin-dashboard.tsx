@@ -235,9 +235,7 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
   const bulkResetMonthlyPoints = async () => {
     if (!confirm('Are you sure you want to reset all users\' monthly points to their maximum allocation? This action cannot be undone.')) {
       return
-    }
-
-    try {
+    }    try {
       const { error } = await supabase.rpc('bulk_reset_monthly_points')
 
       if (error) throw error
@@ -437,56 +435,54 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-background to-zinc-950 text-foreground">
-      {/* Header */}
-      <header className="border-b border-border/30 backdrop-blur-md sticky top-0 z-50 bg-black/80">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+      {/* Header */}      <header className="border-b border-border/30 backdrop-blur-md sticky top-0 z-50 bg-black/80">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+            <div className="flex items-center space-x-3 sm:space-x-4">
               <div className="flex items-center space-x-2">
                 <div
-                  className="bg-gradient-to-br from-slate-300 via-zinc-200 to-slate-400 p-2 rounded-lg shadow-md flex items-center justify-center border border-slate-300/50"
+                  className="bg-gradient-to-br from-slate-300 via-zinc-200 to-slate-400 p-1.5 sm:p-2 rounded-lg shadow-md flex items-center justify-center border border-slate-300/50 w-8 h-8 sm:w-10 sm:h-10"
                   style={{
                     background: "linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 25%, #94a3b8 50%, #64748b 75%, #475569 100%)",
                     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.2)"
                   }}
-                >
-                  <span className="text-lg font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-zinc-700 via-zinc-500 to-zinc-800">
+                >                  <span className="text-base sm:text-lg font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-zinc-700 via-zinc-500 to-zinc-800">
                     ICU
                   </span>
                 </div>
-                <h1 className="text-xl font-bold">Admin Panel</h1>
+                <h1 className="text-lg sm:text-xl font-bold">Admin Panel</h1>
               </div>
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs sm:text-sm">
                 {userRole.replace('_', ' ').toUpperCase()}
               </Badge>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Link href="/dashboard">
-                <Button variant="outline" size="sm">
-                  <Home className="h-4 w-4 mr-2" />
-                  Dashboard
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <Link href="/dashboard" className="flex-1 sm:flex-none">
+                <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
+                  <Home className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Dashboard</span>
+                  <span className="sm:hidden">Dash</span>
                 </Button>
               </Link>
-              <Link href="/auth/login">
-                <Button variant="outline" size="sm">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+              <Link href="/auth/login" className="flex-1 sm:flex-none">
+                <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
+                  <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Logout</span>
+                  <span className="sm:hidden">Out</span>
                 </Button>
               </Link>
             </div>
           </div>
         </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-6">
+      </header>      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Navigation Tabs */}
-        <div className="mb-6">
-          <nav className="flex space-x-1 bg-muted/20 p-1 rounded-lg">
+        <div className="mb-4 sm:mb-6">
+          <nav className="flex space-x-1 bg-muted/20 p-1 rounded-lg overflow-x-auto">
             {[
               { id: 'dashboard', label: 'Overview', icon: BarChart3 },
               { id: 'users', label: 'Users', icon: Users },
-              { id: 'applications', label: 'Applications', icon: FileText },
+              { id: 'applications', label: 'Apps', icon: FileText },
               { id: 'reports', label: 'Reports', icon: AlertTriangle },
               { id: 'bookings', label: 'Bookings', icon: Calendar },
               { id: 'settings', label: 'Settings', icon: Settings }
@@ -496,21 +492,21 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'bg-primary text-primary-foreground'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
-                  <span>{tab.label}</span>
-                  {tab.id === 'applications' && stats.pendingApplications > 0 && (
-                    <Badge variant="destructive" className="ml-1 text-xs">
+                  <Icon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.id === 'applications' ? 'Apps' : tab.label}</span>                  {tab.id === 'applications' && stats.pendingApplications > 0 && (
+                    <Badge variant="destructive" className="ml-1 text-xs hidden sm:inline-flex">
                       {stats.pendingApplications}
                     </Badge>
                   )}
                   {tab.id === 'reports' && stats.pendingReports > 0 && (
-                    <Badge variant="destructive" className="ml-1 text-xs">
+                    <Badge variant="destructive" className="ml-1 text-xs hidden sm:inline-flex">
                       {stats.pendingReports}
                     </Badge>
                   )}
@@ -518,34 +514,30 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
               )
             })}
           </nav>
-        </div>
-
-        {/* Dashboard Overview */}
+        </div>        {/* Dashboard Overview */}
         {activeTab === 'dashboard' && (
-          <div className="space-y-6">            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
+          <div className="space-y-4 sm:space-y-6">            {/* Stats Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
+                  <CardTitle className="text-xs sm:text-sm font-medium">Total Members</CardTitle>
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalMembers}</div>
+                <CardContent className="p-3 sm:p-4 pt-0">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.totalMembers}</div>
                 </CardContent>
               </Card>
               
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Pending Applications</CardTitle>
-                  <FileText className="h-4 w-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
+                  <CardTitle className="text-xs sm:text-sm font-medium">Pending Apps</CardTitle>
+                  <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.pendingApplications}</div>
-                  {stats.pendingApplications > 0 && (
+                <CardContent className="p-3 sm:p-4 pt-0">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.pendingApplications}</div>                  {stats.pendingApplications > 0 && (
                     <Button 
                       variant="link" 
                       size="sm" 
-                      className="p-0 h-auto"
+                      className="p-0 h-auto text-xs"
                       onClick={() => setActiveTab('applications')}
                     >
                       Review now
@@ -555,17 +547,16 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
               </Card>
               
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Pending Reports</CardTitle>
-                  <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
+                  <CardTitle className="text-xs sm:text-sm font-medium">Pending Reports</CardTitle>
+                  <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.pendingReports}</div>
-                  {stats.pendingReports > 0 && (
+                <CardContent className="p-3 sm:p-4 pt-0">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.pendingReports}</div>                  {stats.pendingReports > 0 && (
                     <Button 
                       variant="link" 
                       size="sm" 
-                      className="p-0 h-auto"
+                      className="p-0 h-auto text-xs"
                       onClick={() => setActiveTab('reports')}
                     >
                       Review now
@@ -575,25 +566,22 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
               </Card>
               
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Bookings Today</CardTitle>
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
+                  <CardTitle className="text-xs sm:text-sm font-medium">Today's Bookings</CardTitle>
+                  <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.activeBookingsToday}</div>
+                <CardContent className="p-3 sm:p-4 pt-0">
+                  <div className="text-lg sm:text-2xl font-bold">{stats.activeBookingsToday}</div>
                 </CardContent>
               </Card>
-            </div>
-
-            {/* Enhanced Stats Cards */}
+            </div>            {/* Enhanced Stats Cards */}
             {(stats.totalPointsAllocated !== undefined) && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Points Utilization</CardTitle>
-                    <Coins className="h-4 w-4 text-muted-foreground" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
+                    <CardTitle className="text-xs sm:text-sm font-medium">Points Utilization</CardTitle>
+                    <Coins className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                   </CardHeader>
-                  <CardContent>                    <div className="text-2xl font-bold">
+                  <CardContent className="p-3 sm:p-4 pt-0">                    <div className="text-lg sm:text-2xl font-bold">
                       {stats.totalPointsAllocated || 0}/{stats.totalPointsCapacity || 0}
                     </div><p className="text-xs text-muted-foreground">
                       {(stats.totalPointsCapacity && stats.totalPointsAllocated && stats.totalPointsCapacity > 0) ? 
@@ -601,15 +589,13 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                       }% of total capacity used
                     </p>
                   </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Weekend Slots This Week</CardTitle>
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                </Card>                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
+                    <CardTitle className="text-xs sm:text-sm font-medium">Weekend Slots This Week</CardTitle>
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{stats.weekendSlotsUsedThisWeek || 0}</div>
+                  <CardContent className="p-3 sm:p-4 pt-0">
+                    <div className="text-lg sm:text-2xl font-bold">{stats.weekendSlotsUsedThisWeek || 0}</div>
                     <p className="text-xs text-muted-foreground">
                       Slots used across all members
                     </p>
@@ -617,12 +603,12 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                 </Card>
 
                 <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">System Health</CardTitle>
-                    <Shield className="h-4 w-4 text-muted-foreground" />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-4">
+                    <CardTitle className="text-xs sm:text-sm font-medium">System Health</CardTitle>
+                    <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-green-500">Healthy</div>
+                  <CardContent className="p-3 sm:p-4 pt-0">
+                    <div className="text-lg sm:text-2xl font-bold text-green-500">Healthy</div>
                     <p className="text-xs text-muted-foreground">
                       All systems operational
                     </p>
@@ -667,25 +653,26 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
           </div>
         )}        {/* User Management */}
         {activeTab === 'users' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">User Management</h2>
-              <div className="flex items-center space-x-4">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+              <h2 className="text-xl sm:text-2xl font-bold">User Management</h2>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowBulkActions(!showBulkActions)}
+                  className="text-xs sm:text-sm"
                 >
-                  <Settings className="h-4 w-4 mr-2" />
+                  <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Bulk Actions
                 </Button>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-64"
+                    className="pl-8 sm:pl-10 w-full sm:w-64 text-xs sm:text-sm"
                   />
                 </div>
               </div>
@@ -697,19 +684,18 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                 <CardHeader>
                   <CardTitle className="text-lg">Bulk Management Actions</CardTitle>
                   <CardDescription>Perform actions on all users or specific groups</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                </CardHeader>                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     <Card>
-                      <CardContent className="p-4">
-                        <h4 className="font-semibold mb-2">Monthly Points Reset</h4>
-                        <p className="text-sm text-muted-foreground mb-3">
+                      <CardContent className="p-3 sm:p-4">
+                        <h4 className="font-semibold mb-2 text-sm">Monthly Points Reset</h4>
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-3">
                           Reset all users' monthly points to their maximum allocation
                         </p>
                         <Button
                           size="sm"
                           onClick={() => bulkResetMonthlyPoints()}
-                          className="w-full"
+                          className="w-full text-xs sm:text-sm"
                         >
                           Reset All Points
                         </Button>
@@ -717,15 +703,15 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                     </Card>
 
                     <Card>
-                      <CardContent className="p-4">
-                        <h4 className="font-semibold mb-2">Weekend Slots Reset</h4>
-                        <p className="text-sm text-muted-foreground mb-3">
+                      <CardContent className="p-3 sm:p-4">
+                        <h4 className="font-semibold mb-2 text-sm">Weekend Slots Reset</h4>
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-3">
                           Reset all users' weekend slots used to 0
                         </p>
                         <Button
                           size="sm"
                           onClick={() => bulkResetWeekendSlots()}
-                          className="w-full"
+                          className="w-full text-xs sm:text-sm"
                         >
                           Reset Weekend Slots
                         </Button>
@@ -733,8 +719,8 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                     </Card>
 
                     <Card>
-                      <CardContent className="p-4">
-                        <h4 className="font-semibold mb-2">Global Points Cap</h4>
+                      <CardContent className="p-3 sm:p-4">
+                        <h4 className="font-semibold mb-2 text-sm">Global Points Cap</h4>
                         <div className="space-y-2">
                           <Input
                             type="number"
@@ -742,6 +728,7 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                             min="1"
                             max="200"
                             id="globalPointsCap"
+                            className="text-xs sm:text-sm"
                           />
                           <Button
                             size="sm"
@@ -752,7 +739,7 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                                 bulkUpdatePointsCap(newCap)
                               }
                             }}
-                            className="w-full"
+                            className="w-full text-xs sm:text-sm"
                           >
                             Update All Caps
                           </Button>
@@ -762,42 +749,43 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                   </div>
                 </CardContent>
               </Card>
-            )}            <div className="grid gap-6">
+            )}            <div className="grid gap-4 sm:gap-6">
               {filteredMembers.map((member) => (
                 <Card key={member.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-3">
-                          <h3 className="font-semibold">{member.email}</h3>
-                          <Badge variant={member.role === 'admin' || member.role === 'super_admin' ? 'default' : 'secondary'}>
+                  <CardContent className="p-3 sm:p-6">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0">
+                      <div className="space-y-2 flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                          <h3 className="font-semibold text-sm sm:text-base truncate">{member.email}</h3>
+                          <Badge variant={member.role === 'admin' || member.role === 'super_admin' ? 'default' : 'secondary'} className="text-xs w-fit">
                             {member.role}
                           </Badge>
                         </div>
-                        <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+                        <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-6 text-xs sm:text-sm text-muted-foreground">
                           <div className="flex items-center space-x-1">
-                            <Coins className="h-4 w-4" />
+                            <Coins className="h-3 w-3 sm:h-4 sm:w-4" />
                             <span className="font-medium">
                               {member.monthly_points}/{member.monthly_points_max} points
                             </span>
                             {member.monthly_points_max !== 40 && (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-xs ml-1">
                                 Custom Cap
                               </Badge>
                             )}
                           </div>
                           <div className="flex items-center space-x-1">
-                            <Clock className="h-4 w-4" />
+                            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                             <span>{member.weekend_slots_used}/{member.weekend_slots_max} weekend slots</span>
                           </div>
                           <div className="flex items-center space-x-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>Joined {new Date(member.created_at).toLocaleDateString()}</span>
+                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="hidden sm:inline">Joined {new Date(member.created_at).toLocaleDateString()}</span>
+                            <span className="sm:hidden">{new Date(member.created_at).toLocaleDateString()}</span>
                           </div>
                         </div>
                         {/* Points utilization bar */}
                         <div className="flex items-center space-x-2">
-                          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 sm:h-2 bg-muted rounded-full overflow-hidden">
                             <div 
                               className="h-full bg-primary transition-all duration-300"
                               style={{ 
@@ -810,13 +798,14 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 w-full sm:w-auto">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setSelectedMember(member)}
+                          className="flex-1 sm:flex-none text-xs sm:text-sm"
                         >
-                          <Edit className="h-4 w-4 mr-2" />
+                          <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                           Manage
                         </Button>
                       </div>
@@ -824,18 +813,18 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                   </CardContent>
                 </Card>
               ))}
-            </div>
-
-            {/* User Management Modal */}
+            </div>            {/* User Management Modal */}
             {selectedMember && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                <Card className="w-full max-w-md">
-                  <CardHeader>
-                    <CardTitle>Manage User: {selectedMember.email}</CardTitle>
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
+                <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
+                  <CardHeader className="pb-3 sm:pb-6">
+                    <CardTitle className="text-sm sm:text-base truncate">
+                      Manage User: {selectedMember.email}
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">                    <div>
-                      <Label>Monthly Points</Label>
-                      <div className="flex items-center space-x-2 mt-1">
+                  <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6">                    <div>
+                      <Label className="text-sm">Monthly Points</Label>
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 mt-1">
                         <Input
                           type="number"
                           value={selectedMember.monthly_points}
@@ -845,10 +834,12 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                           })}
                           min="0"
                           max={selectedMember.monthly_points_max}
+                          className="text-sm"
                         />
                         <Button
                           size="sm"
                           onClick={() => updateMemberPoints(selectedMember.id, selectedMember.monthly_points)}
+                          className="w-full sm:w-auto text-xs sm:text-sm"
                         >
                           Update
                         </Button>
@@ -859,8 +850,8 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                     </div>
 
                     <div>
-                      <Label>Monthly Points Cap</Label>
-                      <div className="flex items-center space-x-2 mt-1">
+                      <Label className="text-sm">Monthly Points Cap</Label>
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 mt-1">
                         <Input
                           type="number"
                           value={selectedMember.monthly_points_max}
@@ -870,10 +861,12 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                           })}
                           min="1"
                           max="200"
+                          className="text-sm"
                         />
                         <Button
                           size="sm"
                           onClick={() => updateMemberPointsCap(selectedMember.id, selectedMember.monthly_points_max)}
+                          className="w-full sm:w-auto text-xs sm:text-sm"
                         >
                           Update Cap
                         </Button>
@@ -884,8 +877,8 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                     </div>
 
                     <div>
-                      <Label>Weekend Slots Limit</Label>
-                      <div className="flex items-center space-x-2 mt-1">
+                      <Label className="text-sm">Weekend Slots Limit</Label>
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 mt-1">
                         <Input
                           type="number"
                           value={selectedMember.weekend_slots_max}
@@ -895,10 +888,12 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                           })}
                           min="1"
                           max="24"
+                          className="text-sm"
                         />
                         <Button
                           size="sm"
                           onClick={() => updateMemberWeekendSlots(selectedMember.id, selectedMember.weekend_slots_max)}
+                          className="w-full sm:w-auto text-xs sm:text-sm"
                         >
                           Update Limit
                         </Button>
@@ -906,10 +901,8 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                       <p className="text-xs text-muted-foreground mt-1">
                         Weekly weekend slots limit (current used: {selectedMember.weekend_slots_used})
                       </p>
-                    </div>
-
-                    <div>
-                      <Label>Role</Label>
+                    </div>                    <div>
+                      <Label className="text-sm">Role</Label>
                       <Select
                         value={selectedMember.role}
                         onValueChange={(value) => setSelectedMember({
@@ -917,7 +910,7 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                           role: value
                         })}
                       >
-                        <SelectTrigger className="mt-1">
+                        <SelectTrigger className="mt-1 text-sm">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -932,17 +925,18 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                         <Button
                           size="sm"
                           onClick={() => updateMemberRole(selectedMember.id, selectedMember.role)}
-                          className="mt-2"
+                          className="mt-2 w-full sm:w-auto text-xs sm:text-sm"
                         >
                           Update Role
                         </Button>
                       )}
                     </div>
 
-                    <div className="flex justify-end space-x-2 pt-4">
+                    <div className="flex justify-end space-x-2 pt-3 sm:pt-4">
                       <Button
                         variant="outline"
                         onClick={() => setSelectedMember(null)}
+                        className="text-xs sm:text-sm"
                       >
                         Close
                       </Button>
@@ -952,55 +946,53 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
               </div>
             )}
           </div>
-        )}
-
-        {/* Applications Management */}
+        )}        {/* Applications Management */}
         {activeTab === 'applications' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Applications Management</h2>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
+              <h2 className="text-xl sm:text-2xl font-bold">Applications Management</h2>
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <div className="relative flex-1 sm:flex-none">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search applications..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-64"
+                    className="pl-10 w-full sm:w-64 text-sm"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="grid gap-6">
-              {filteredApplications.map((application) => (
+            <div className="grid gap-3 sm:gap-6">              {filteredApplications.map((application) => (
                 <Card key={application.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-3">
-                          <h3 className="font-semibold">{application.full_name}</h3>
+                  <CardContent className="p-3 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
+                      <div className="space-y-2 min-w-0 flex-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                          <h3 className="font-semibold text-sm sm:text-base truncate">{application.full_name}</h3>
                           <Badge variant={
                             application.status === 'approved' ? 'default' :
                             application.status === 'rejected' ? 'destructive' :
                             application.status === 'pending' ? 'secondary' : 'outline'
-                          }>
+                          } className="text-xs self-start sm:self-auto">
                             {application.status}
                           </Badge>
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          <p>{application.email} • {application.city} • Age {application.age}</p>
+                        <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
+                          <p className="truncate">{application.email} • {application.city} • Age {application.age}</p>
                           <p>Applied: {new Date(application.created_at).toLocaleDateString()}</p>
-                          <p className="truncate max-w-md">{application.studio_usage_purpose}</p>
+                          <p className="truncate">{application.studio_usage_purpose}</p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 w-full sm:w-auto">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setSelectedApplication(application)}
+                          className="flex-1 sm:flex-none text-xs sm:text-sm"
                         >
-                          <Eye className="h-4 w-4 mr-2" />
+                          <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                           Review
                         </Button>
                       </div>
@@ -1008,78 +1000,77 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                   </CardContent>
                 </Card>
               ))}
-            </div>
-
-            {/* Application Review Modal */}
+            </div>            {/* Application Review Modal */}
             {selectedApplication && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
-                <Card className="w-full max-w-2xl m-4">
-                  <CardHeader>
-                    <CardTitle>Application Review: {selectedApplication.full_name}</CardTitle>
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto p-3 sm:p-4">
+                <Card className="w-full max-w-2xl m-0 sm:m-4 max-h-[95vh] overflow-hidden flex flex-col">
+                  <CardHeader className="pb-3 sm:pb-6 flex-shrink-0">
+                    <CardTitle className="text-sm sm:text-base">
+                      Application Review: {selectedApplication.full_name}
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4 max-h-96 overflow-y-auto">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-sm font-medium">Email</Label>
-                        <p className="text-sm">{selectedApplication.email}</p>
+                  <CardContent className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 px-3 sm:px-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">                      <div>
+                        <Label className="text-xs sm:text-sm font-medium">Email</Label>
+                        <p className="text-xs sm:text-sm break-words">{selectedApplication.email}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium">Age</Label>
-                        <p className="text-sm">{selectedApplication.age}</p>
+                        <Label className="text-xs sm:text-sm font-medium">Age</Label>
+                        <p className="text-xs sm:text-sm">{selectedApplication.age}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium">City</Label>
-                        <p className="text-sm">{selectedApplication.city}</p>
+                        <Label className="text-xs sm:text-sm font-medium">City</Label>
+                        <p className="text-xs sm:text-sm">{selectedApplication.city}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium">Status</Label>
+                        <Label className="text-xs sm:text-sm font-medium">Status</Label>
                         <Badge variant={
                           selectedApplication.status === 'approved' ? 'default' :
                           selectedApplication.status === 'rejected' ? 'destructive' :
                           'secondary'
-                        }>
+                        } className="text-xs">
                           {selectedApplication.status}
                         </Badge>
                       </div>
+                    </div>                    <div>
+                      <Label className="text-xs sm:text-sm font-medium">Studio Usage Purpose</Label>
+                      <p className="text-xs sm:text-sm mt-1 break-words">{selectedApplication.studio_usage_purpose}</p>
                     </div>
 
                     <div>
-                      <Label className="text-sm font-medium">Studio Usage Purpose</Label>
-                      <p className="text-sm mt-1">{selectedApplication.studio_usage_purpose}</p>
+                      <Label className="text-xs sm:text-sm font-medium">About Yourself</Label>
+                      <p className="text-xs sm:text-sm mt-1 break-words">{selectedApplication.about_yourself}</p>
                     </div>
 
                     <div>
-                      <Label className="text-sm font-medium">About Yourself</Label>
-                      <p className="text-sm mt-1">{selectedApplication.about_yourself}</p>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium">Why Join Studio</Label>
-                      <p className="text-sm mt-1">{selectedApplication.why_join_studio}</p>
+                      <Label className="text-xs sm:text-sm font-medium">Why Join Studio</Label>
+                      <p className="text-xs sm:text-sm mt-1 break-words">{selectedApplication.why_join_studio}</p>
                     </div>
 
                     {selectedApplication.review_notes && (
                       <div>
-                        <Label className="text-sm font-medium">Review Notes</Label>
-                        <p className="text-sm mt-1">{selectedApplication.review_notes}</p>
+                        <Label className="text-xs sm:text-sm font-medium">Review Notes</Label>
+                        <p className="text-xs sm:text-sm mt-1 break-words">{selectedApplication.review_notes}</p>
                       </div>
                     )}
 
                     {selectedApplication.status === 'pending' && (
-                      <div className="space-y-4 pt-4 border-t">
+                      <div className="space-y-3 sm:space-y-4 pt-3 sm:pt-4 border-t">
                         <div>
-                          <Label>Review Notes</Label>
+                          <Label className="text-xs sm:text-sm">Review Notes</Label>
                           <Textarea
                             placeholder="Add review notes..."
                             rows={3}
                             id="reviewNotes"
+                            className="text-xs sm:text-sm mt-1"
                           />
                         </div>
                         
-                        <div className="flex justify-end space-x-2">
+                        <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2">
                           <Button
                             variant="outline"
                             onClick={() => setSelectedApplication(null)}
+                            className="text-xs sm:text-sm order-3 sm:order-1"
                           >
                             Close
                           </Button>
@@ -1089,8 +1080,9 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                               const notes = (document.getElementById('reviewNotes') as HTMLTextAreaElement)?.value || ''
                               reviewApplication(selectedApplication.id, 'rejected', notes)
                             }}
+                            className="text-xs sm:text-sm order-2"
                           >
-                            <X className="h-4 w-4 mr-2" />
+                            <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                             Reject
                           </Button>
                           <Button
@@ -1098,8 +1090,9 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                               const notes = (document.getElementById('reviewNotes') as HTMLTextAreaElement)?.value || ''
                               reviewApplication(selectedApplication.id, 'approved', notes)
                             }}
+                            className="text-xs sm:text-sm order-1 sm:order-3"
                           >
-                            <Check className="h-4 w-4 mr-2" />
+                            <Check className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                             Approve
                           </Button>
                         </div>
@@ -1107,10 +1100,11 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                     )}
 
                     {selectedApplication.status !== 'pending' && (
-                      <div className="flex justify-end">
+                      <div className="flex justify-end pt-3 sm:pt-4 border-t">
                         <Button
                           variant="outline"
                           onClick={() => setSelectedApplication(null)}
+                          className="text-xs sm:text-sm"
                         >
                           Close
                         </Button>
@@ -1121,60 +1115,60 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
               </div>
             )}
           </div>
-        )}
-
-        {/* Reports Management */}
+        )}        {/* Reports Management */}
         {activeTab === 'reports' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Reports Management</h2>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
+              <h2 className="text-xl sm:text-2xl font-bold">Reports Management</h2>
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <div className="relative flex-1 sm:flex-none">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search reports..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-64"
+                    className="pl-10 w-full sm:w-64 text-sm"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="grid gap-6">
-              {filteredReports.map((report) => (
+            <div className="grid gap-3 sm:gap-6">              {filteredReports.map((report) => (
                 <Card key={report.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-3">
-                          <h3 className="font-semibold">{report.subject}</h3>
-                          <Badge variant={
-                            report.status === 'resolved' ? 'default' :
-                            report.status === 'in_progress' ? 'secondary' :
-                            'destructive'
-                          }>
-                            {report.status.replace('_', ' ')}
-                          </Badge>
-                          <Badge variant="outline">
-                            {report.priority}
-                          </Badge>
-                          <Badge variant="outline">
-                            {report.report_type}
-                          </Badge>
+                  <CardContent className="p-3 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
+                      <div className="space-y-2 min-w-0 flex-1">
+                        <div className="flex flex-col space-y-2">
+                          <h3 className="font-semibold text-sm sm:text-base truncate">{report.subject}</h3>
+                          <div className="flex flex-wrap gap-1 sm:gap-2">
+                            <Badge variant={
+                              report.status === 'resolved' ? 'default' :
+                              report.status === 'in_progress' ? 'secondary' :
+                              'destructive'
+                            } className="text-xs">
+                              {report.status.replace('_', ' ')}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {report.priority}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {report.report_type}
+                            </Badge>
+                          </div>
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          <p className="truncate max-w-md">{report.description}</p>
+                        <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
+                          <p className="truncate">{report.description}</p>
                           <p>Reported: {new Date(report.created_at).toLocaleDateString()}</p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 w-full sm:w-auto">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setSelectedReport(report)}
+                          className="flex-1 sm:flex-none text-xs sm:text-sm"
                         >
-                          <Eye className="h-4 w-4 mr-2" />
+                          <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                           Manage
                         </Button>
                       </div>
@@ -1182,50 +1176,49 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                   </CardContent>
                 </Card>
               ))}
-            </div>
-
-            {/* Report Management Modal */}
+            </div>            {/* Report Management Modal */}
             {selectedReport && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                <Card className="w-full max-w-2xl">
-                  <CardHeader>
-                    <CardTitle>Manage Report: {selectedReport.subject}</CardTitle>
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
+                <Card className="w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+                  <CardHeader className="pb-3 sm:pb-6 flex-shrink-0">
+                    <CardTitle className="text-sm sm:text-base truncate">
+                      Manage Report: {selectedReport.subject}
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-sm font-medium">Status</Label>
-                        <p className="text-sm">{selectedReport.status.replace('_', ' ')}</p>
+                  <CardContent className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 px-3 sm:px-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">                      <div>
+                        <Label className="text-xs sm:text-sm font-medium">Status</Label>
+                        <p className="text-xs sm:text-sm">{selectedReport.status.replace('_', ' ')}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium">Priority</Label>
-                        <p className="text-sm">{selectedReport.priority}</p>
+                        <Label className="text-xs sm:text-sm font-medium">Priority</Label>
+                        <p className="text-xs sm:text-sm">{selectedReport.priority}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium">Type</Label>
-                        <p className="text-sm">{selectedReport.report_type}</p>
+                        <Label className="text-xs sm:text-sm font-medium">Type</Label>
+                        <p className="text-xs sm:text-sm">{selectedReport.report_type}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium">Created</Label>
-                        <p className="text-sm">{new Date(selectedReport.created_at).toLocaleDateString()}</p>
+                        <Label className="text-xs sm:text-sm font-medium">Created</Label>
+                        <p className="text-xs sm:text-sm">{new Date(selectedReport.created_at).toLocaleDateString()}</p>
                       </div>
                     </div>
 
                     <div>
-                      <Label className="text-sm font-medium">Description</Label>
-                      <p className="text-sm mt-1">{selectedReport.description}</p>
+                      <Label className="text-xs sm:text-sm font-medium">Description</Label>
+                      <p className="text-xs sm:text-sm mt-1 break-words">{selectedReport.description}</p>
                     </div>
 
                     {selectedReport.admin_notes && (
                       <div>
-                        <Label className="text-sm font-medium">Admin Notes</Label>
-                        <p className="text-sm mt-1">{selectedReport.admin_notes}</p>
+                        <Label className="text-xs sm:text-sm font-medium">Admin Notes</Label>
+                        <p className="text-xs sm:text-sm mt-1 break-words">{selectedReport.admin_notes}</p>
                       </div>
                     )}
 
-                    <div className="space-y-4 pt-4 border-t">
+                    <div className="space-y-3 sm:space-y-4 pt-3 sm:pt-4 border-t">
                       <div>
-                        <Label>Update Status</Label>
+                        <Label className="text-xs sm:text-sm">Update Status</Label>
                         <Select
                           defaultValue={selectedReport.status}
                           onValueChange={(value) => setSelectedReport({
@@ -1233,7 +1226,7 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                             status: value
                           })}
                         >
-                          <SelectTrigger className="mt-1">
+                          <SelectTrigger className="mt-1 text-xs sm:text-sm">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -1246,19 +1239,21 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                       </div>
 
                       <div>
-                        <Label>Admin Notes</Label>
+                        <Label className="text-xs sm:text-sm">Admin Notes</Label>
                         <Textarea
                           placeholder="Add admin notes..."
                           rows={3}
                           id="adminNotes"
                           defaultValue={selectedReport.admin_notes || ''}
+                          className="text-xs sm:text-sm mt-1"
                         />
                       </div>
                       
-                      <div className="flex justify-end space-x-2">
+                      <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2">
                         <Button
                           variant="outline"
                           onClick={() => setSelectedReport(null)}
+                          className="text-xs sm:text-sm order-2 sm:order-1"
                         >
                           Close
                         </Button>
@@ -1267,6 +1262,7 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
                             const notes = (document.getElementById('adminNotes') as HTMLTextAreaElement)?.value || ''
                             updateReportStatus(selectedReport.id, selectedReport.status, notes)
                           }}
+                          className="text-xs sm:text-sm order-1 sm:order-2"
                         >
                           Update Report
                         </Button>
@@ -1277,15 +1273,13 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
               </div>
             )}
           </div>
-        )}
-
-        {/* Bookings Management */}
+        )}        {/* Bookings Management */}
         {activeTab === 'bookings' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Bookings Management</h2>
+          <div className="space-y-4 sm:space-y-6">
+            <h2 className="text-xl sm:text-2xl font-bold">Bookings Management</h2>
             <Card>
-              <CardContent className="p-6">
-                <p className="text-muted-foreground">
+              <CardContent className="p-3 sm:p-6">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Booking management features coming soon. This will include calendar view, 
                   booking modifications, and administrative booking controls.
                 </p>
@@ -1296,11 +1290,11 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
 
         {/* Settings */}
         {activeTab === 'settings' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold">System Settings</h2>
+          <div className="space-y-4 sm:space-y-6">
+            <h2 className="text-xl sm:text-2xl font-bold">System Settings</h2>
             <Card>
-              <CardContent className="p-6">
-                <p className="text-muted-foreground">
+              <CardContent className="p-3 sm:p-6">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   System settings management coming soon. This will include studio capacity, 
                   point values, booking rules, and email templates.
                 </p>

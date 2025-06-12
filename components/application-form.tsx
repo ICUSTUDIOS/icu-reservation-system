@@ -64,7 +64,7 @@ function SubmitButton({ isLoading }: { isLoading: boolean }) {
     <Button
       type="submit"
       disabled={isLoading}
-      className={`w-full py-3 text-base font-semibold rounded-md h-12 shadow-md transition-all ${
+      className={`w-full py-3 sm:py-4 text-sm sm:text-base font-semibold rounded-md h-12 sm:h-14 shadow-md transition-all touch-manipulation ${
         isLoading 
           ? 'bg-gray-600 cursor-not-allowed opacity-75' 
           : 'bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 hover:shadow-lg'
@@ -73,12 +73,14 @@ function SubmitButton({ isLoading }: { isLoading: boolean }) {
       {isLoading ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Submitting Application...
+          <span className="hidden sm:inline">Submitting Application...</span>
+          <span className="sm:hidden">Submitting...</span>
         </>
       ) : (
         <>
           <Check className="mr-2 h-4 w-4" />
-          Submit Application
+          <span className="hidden sm:inline">Submit Application</span>
+          <span className="sm:hidden">Submit</span>
         </>
       )}
     </Button>
@@ -318,12 +320,13 @@ export default function ApplicationForm() {
   const renderStep = () => {
     switch (currentStep) {
       case 1:        return (
-          <div className="space-y-3">            <div className="text-center mb-3">
-              <h2 className="text-xl font-bold text-white mb-1">Personal Information</h2>
-              <p className="text-muted-foreground text-sm">Let's start with the basics</p>
+          <div className="space-y-3 sm:space-y-4">
+            <div className="text-center mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-1">Personal Information</h2>
+              <p className="text-muted-foreground text-xs sm:text-sm">Let's start with the basics</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"><div className="space-y-2">
                 <Label htmlFor="fullName" className="text-foreground/80">Full Name *</Label>
                 <Input
                   id="fullName"
@@ -380,8 +383,7 @@ export default function ApplicationForm() {
                   {fieldErrors.city && <p className="text-destructive text-sm">{fieldErrors.city}</p>}
                 </div>
               </div>
-              
-              <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="phone" className="text-foreground/80">Phone Number</Label>
                 <Input
                   id="phone"
@@ -391,18 +393,19 @@ export default function ApplicationForm() {
                   placeholder="+1 (555) 123-4567"
                   className="bg-black/50 border-border/50 text-foreground"
                 />
-              </div>
-            </div>
+              </div>            </div>
           </div>
         )
 
-      case 2:        return (          <div className="space-y-3">
-            <div className="text-center mb-3">
-              <h2 className="text-xl font-bold text-white mb-1">Social Media & Online Presence</h2>
-              <p className="text-muted-foreground text-sm">Help us understand your creative presence</p>
+      case 2:
+        return (
+          <div className="space-y-3 sm:space-y-4">
+            <div className="text-center mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-1">Social Media & Online Presence</h2>
+              <p className="text-muted-foreground text-xs sm:text-sm">Help us understand your creative presence</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
                 <Label htmlFor="instagramHandle" className="text-foreground/80">Instagram Handle</Label>
                 <Input
@@ -446,8 +449,7 @@ export default function ApplicationForm() {
                   className="bg-black/50 border-border/50 text-foreground"
                 />
               </div>
-              
-              <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="otherSocials" className="text-foreground/80">Other Social Media / Platforms</Label>                <Textarea
                   id="otherSocials"
                   value={formData.otherSocials}
@@ -455,18 +457,19 @@ export default function ApplicationForm() {
                   placeholder="TikTok, YouTube, Behance, GitHub, etc."
                   className="bg-black/50 border-border/50 text-foreground min-h-[60px]"
                 />
-              </div>
-            </div>
+              </div>            </div>
           </div>
         )
 
-      case 3:        return (          <div className="space-y-3">
-            <div className="text-center mb-3">
-              <h2 className="text-xl font-bold text-white mb-1">Professional Background</h2>
-              <p className="text-muted-foreground text-sm">Tell us about your creative and professional journey</p>
+      case 3:
+        return (
+          <div className="space-y-3 sm:space-y-4">
+            <div className="text-center mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-1">Professional Background</h2>
+              <p className="text-muted-foreground text-xs sm:text-sm">Tell us about your creative and professional journey</p>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="profession" className="text-foreground/80">Current Profession/Field</Label>
                 <Input
@@ -497,18 +500,19 @@ export default function ApplicationForm() {
                   placeholder="Describe your experience in creative fields, projects you've worked on, artistic skills, etc."
                   className="bg-black/50 border-border/50 text-foreground min-h-[80px]"
                 />
-              </div>
-            </div>
+              </div>            </div>
           </div>
         )
 
-      case 4:        return (          <div className="space-y-3">
-            <div className="text-center mb-3">
-              <h2 className="text-xl font-bold text-white mb-1">Studio Usage & Goals</h2>
-              <p className="text-muted-foreground text-sm">How do you plan to use the creative space?</p>
+      case 4:
+        return (
+          <div className="space-y-3 sm:space-y-4">
+            <div className="text-center mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-1">Studio Usage & Goals</h2>
+              <p className="text-muted-foreground text-xs sm:text-sm">How do you plan to use the creative space?</p>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="studioUsagePurpose" className="text-foreground/80">What would you primarily use the studio for? *</Label>                <Textarea
                   id="studioUsagePurpose"
@@ -531,8 +535,7 @@ export default function ApplicationForm() {
                   className="bg-black/50 border-border/50 text-foreground min-h-[60px]"
                 />
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="experienceLevel" className="text-foreground/80">Experience Level</Label>
                   <Select value={formData.experienceLevel} onValueChange={(value) => handleInputChange('experienceLevel', value)}>
@@ -574,17 +577,18 @@ export default function ApplicationForm() {
                   className="bg-black/50 border-border/50 text-foreground min-h-[60px]"
                 />
               </div>
-            </div>
-          </div>
+            </div>          </div>
         )
 
-      case 5:        return (          <div className="space-y-3">
-            <div className="text-center mb-3">
-              <h2 className="text-xl font-bold text-white mb-1">About You & Motivation</h2>
-              <p className="text-muted-foreground text-sm">Help us get to know you better</p>
+      case 5:
+        return (
+          <div className="space-y-3 sm:space-y-4">
+            <div className="text-center mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-1">About You & Motivation</h2>
+              <p className="text-muted-foreground text-xs sm:text-sm">Help us get to know you better</p>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="aboutYourself" className="text-foreground/80">Tell us about yourself *</Label>                <Textarea
                   id="aboutYourself"
@@ -629,18 +633,19 @@ export default function ApplicationForm() {
                   placeholder="What skills, knowledge, or positive energy would you bring to our creative community?"
                   className="bg-black/50 border-border/50 text-foreground min-h-[60px]"
                 />
-              </div>
-            </div>
+              </div>            </div>
           </div>
         )
 
-      case 6:        return (          <div className="space-y-3">
-            <div className="text-center mb-3">
-              <h2 className="text-xl font-bold text-white mb-1">Final Details</h2>
-              <p className="text-muted-foreground text-sm">Last few questions to complete your application</p>
+      case 6:
+        return (
+          <div className="space-y-3 sm:space-y-4">
+            <div className="text-center mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-1">Final Details</h2>
+              <p className="text-muted-foreground text-xs sm:text-sm">Last few questions to complete your application</p>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="howDidYouHear" className="text-foreground/80">How did you hear about ICU Creative Studio 1?</Label>
                 <Select value={formData.howDidYouHear} onValueChange={(value) => handleInputChange('howDidYouHear', value)}>
@@ -738,74 +743,73 @@ export default function ApplicationForm() {
         return null
     }
   }
-
   return (
-    <div className="max-w-4xl mx-auto px-4 py-4">      {/* Header */}
-      <div className="text-center mb-3">
-        <div className="flex justify-center mb-3">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">      {/* Header */}
+      <div className="text-center mb-3 sm:mb-4">
+        <div className="flex justify-center mb-2 sm:mb-3">
           <div
-            className="bg-gradient-to-br from-slate-300 via-zinc-200 to-slate-400 p-2 rounded-lg shadow-md flex items-center justify-center border border-slate-300/50"
+            className="bg-gradient-to-br from-slate-300 via-zinc-200 to-slate-400 p-1.5 sm:p-2 rounded-lg shadow-md flex items-center justify-center border border-slate-300/50"
             style={{
               background: "linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 25%, #94a3b8 50%, #64748b 75%, #475569 100%)",
               boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06)",
             }}
-          >
-            <span className="text-3xl font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-zinc-700 via-zinc-500 to-zinc-800 tracking-tighter drop-shadow-sm">
+          >            <span className="text-2xl sm:text-3xl font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-zinc-700 via-zinc-500 to-zinc-800 tracking-tighter drop-shadow-sm">
               ICU
             </span>
           </div>
         </div>
         
-        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 to-zinc-300 mb-1">
+        <h1 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 to-zinc-300 mb-1">
           Creative Studio{" "}
-          <span className="text-3xl font-black text-amber-500 drop-shadow-lg"
+          <span className="text-2xl sm:text-3xl font-black text-amber-500 drop-shadow-lg"
                 style={{ 
                   textShadow: '0 0 12px rgba(245, 158, 11, 0.8), 0 0 24px rgba(245, 158, 11, 0.6), 0 0 36px rgba(245, 158, 11, 0.4)' 
                 }}>
             1
           </span>
         </h1>
-        
-        <p className="text-base text-zinc-300 mb-3">Application for Membership</p>
+          <p className="text-sm sm:text-base text-zinc-300 mb-2 sm:mb-3">Application for Membership</p>
         
         {/* Progress Bar */}
-        <div className="max-w-md mx-auto mb-3">
-          <div className="flex justify-between text-xs text-muted-foreground mb-1">
+        <div className="max-w-sm sm:max-w-md mx-auto mb-3 sm:mb-4">
+          <div className="flex justify-between text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-2">
             <span>Step {currentStep} of {totalSteps}</span>
             <span>{Math.round((currentStep / totalSteps) * 100)}% Complete</span>
           </div>
-          <div className="w-full bg-border/30 rounded-full h-2">
+          <div className="w-full bg-border/30 rounded-full h-1.5 sm:h-2">
             <div 
-              className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-300"
+              className="bg-gradient-to-r from-primary to-accent h-1.5 sm:h-2 rounded-full transition-all duration-300"
               style={{ width: `${(currentStep / totalSteps) * 100}%` }}
             />
           </div>
         </div>
       </div>      {/* Form */}
-      <div className={`bg-black/80 backdrop-blur-sm border border-border/30 rounded-xl p-4 shadow-2xl transition-opacity ${isLoading ? 'opacity-75 pointer-events-none' : ''}`}>
+      <div className={`bg-black/80 backdrop-blur-sm border border-border/30 rounded-xl p-3 sm:p-4 shadow-2xl transition-opacity ${isLoading ? 'opacity-75 pointer-events-none' : ''}`}>
         <form onSubmit={handleSubmit}>
           {renderStep()}
-            {/* Navigation Buttons */}          <div className="flex justify-between items-center mt-4 pt-3 border-t border-border/30">
+            {/* Navigation Buttons */}          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-0 mt-4 pt-3 border-t border-border/30">
             {currentStep > 1 && (
               <Button
                 type="button"
                 variant="outline"
                 onClick={prevStep}
                 disabled={isLoading}
-                className={`bg-black/50 border-border/50 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`bg-black/50 border-border/50 h-12 sm:h-auto touch-manipulation ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Previous
+                <span className="hidden sm:inline">Previous</span>
+                <span className="sm:hidden">Back</span>
               </Button>
             )}
-              <div className={currentStep === 1 ? "ml-auto" : ""}>
+              <div className={currentStep === 1 ? "sm:ml-auto" : ""}>
               {currentStep < totalSteps ? (
                 <Button
                   type="button"
                   onClick={nextStep}
-                  className="bg-gradient-to-r from-primary to-accent"
+                  className="bg-gradient-to-r from-primary to-accent h-12 sm:h-auto touch-manipulation w-full sm:w-auto"
                 >
-                  Next
+                  <span className="hidden sm:inline">Next</span>
+                  <span className="sm:hidden">Continue</span>
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
@@ -813,10 +817,20 @@ export default function ApplicationForm() {
               )}
             </div>
           </div>
-        </form>      </div>
-      
+        </form>      </div>      
       {/* Info Box - Fixed position */}
-      <div className="fixed bottom-4 right-4 w-80 bg-primary/10 border border-primary/30 rounded-lg p-3 shadow-lg backdrop-blur-sm">
+      <div className="hidden lg:block fixed bottom-4 right-4 w-80 bg-primary/10 border border-primary/30 rounded-lg p-3 shadow-lg backdrop-blur-sm">
+        <h3 className="font-bold text-primary mb-1 text-sm">Application Process</h3>
+        <ul className="text-xs text-foreground/80 space-y-0">
+          <li>• Applications reviewed within 5-7 business days</li>
+          <li>• We may contact you for additional information</li>
+          <li>• Approved members receive onboarding via email</li>
+          <li>• Questions? Contact us at studio@icu.space</li>
+        </ul>
+      </div>
+      
+      {/* Mobile Info Box */}
+      <div className="lg:hidden mt-4 bg-primary/10 border border-primary/30 rounded-lg p-3 shadow-lg">
         <h3 className="font-bold text-primary mb-1 text-sm">Application Process</h3>
         <ul className="text-xs text-foreground/80 space-y-0">
           <li>• Applications reviewed within 5-7 business days</li>

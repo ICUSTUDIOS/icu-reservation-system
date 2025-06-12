@@ -8,18 +8,18 @@ export default function HeroSection() {
   const [pointSystemOpen, setPointSystemOpen] = useState(false)
 
   return (
-    <div className="text-center relative py-16 px-6 rounded-2xl overflow-hidden border border-border/20 bg-black/60 shadow-2xl shadow-black/50 backdrop-blur-sm">
+    <div className="text-center relative py-8 sm:py-12 md:py-16 px-3 sm:px-6 rounded-xl sm:rounded-2xl overflow-hidden border border-border/20 bg-black/60 shadow-2xl shadow-black/50 backdrop-blur-sm">
       <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-accent/10 opacity-30 z-0"></div>
       <div className="absolute inset-0 bg-[url('/placeholder.svg?height=600&width=1200')] bg-center bg-cover mix-blend-soft-light opacity-5 z-0"></div>
 
       <div className="relative z-10 max-w-3xl mx-auto">
         {/* RESERVE YOUR TIME Section */}
-        <h2 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 via-zinc-200 to-amber-300 mb-5 tracking-tight">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 via-zinc-200 to-amber-300 mb-3 sm:mb-5 tracking-tight leading-tight">
           RESERVE YOUR TIME
         </h2>
-        <div className="h-2 w-24 bg-gradient-to-r from-primary to-accent mx-auto mb-8 rounded-full shadow-trap-glow"></div>
+        <div className="h-1.5 sm:h-2 w-16 sm:w-24 bg-gradient-to-r from-primary to-accent mx-auto mb-4 sm:mb-8 rounded-full shadow-trap-glow"></div>
 
-        <p className="text-xl text-zinc-300 max-w-2xl mx-auto">
+        <p className="text-base sm:text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed">
           Pick your date and time slot to reserve your session. Please note: late cancellations may result in losing
           half your points.{" "}
           <a
@@ -37,13 +37,13 @@ export default function HeroSection() {
       </div>
 
       <Dialog open={pointSystemOpen} onOpenChange={setPointSystemOpen}>
-        <DialogContent className="bg-black/95 border-border/50 backdrop-blur-sm max-w-2xl">
+        <DialogContent className="bg-black/95 border-border/50 backdrop-blur-sm max-w-2xl mx-3">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-4">
+            <DialogTitle className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-3 sm:mb-4">
               How Your One-Wallet Points System Works
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 text-left">
+          <div className="space-y-3 sm:space-y-4 text-left max-h-96 overflow-y-auto">
             <div className="flex items-start gap-3">
               <Clock className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
               <p className="text-foreground">

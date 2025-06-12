@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 
 interface Booking {
   id: string
@@ -14,14 +14,11 @@ export function useBookings(userId: string | undefined) {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   
-  useEffect(() => {
-    if (!userId) {
+  useEffect(() => {    if (!userId) {
       setLoading(false)
       return
     }
 
-    const supabase = createClient()
-    
     const fetchBookings = async () => {
       const { data, error } = await supabase
         .from('bookings')

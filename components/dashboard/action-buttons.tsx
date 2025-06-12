@@ -102,38 +102,39 @@ export default function ActionButtons() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div className="bg-black/40 backdrop-blur-md border border-border/30 rounded-2xl p-6 shadow-2xl shadow-black/50">
-        <div className="flex flex-col lg:flex-row gap-4 justify-center items-center">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
+      <div className="bg-black/40 backdrop-blur-md border border-border/30 rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-2xl shadow-black/50">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Studio Rules Button */}
           <Sheet open={studioRulesOpen} onOpenChange={setStudioRulesOpen}>
             <SheetTrigger asChild>
               <Button 
                 variant="outline" 
                 size="lg"
-                className="bg-black/50 border-primary/50 text-primary hover:bg-primary/10 hover:text-accent transition-all duration-300 font-semibold px-6 py-3 min-w-[160px]"
+                className="bg-black/50 border-primary/50 text-primary hover:bg-primary/10 hover:text-accent transition-all duration-300 font-semibold px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base min-h-[44px] w-full"
               >
-                <BookOpen className="h-5 w-5 mr-2" />
-                Studio Rules
+                <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+                <span className="truncate">Studio Rules</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="bg-black/95 border-border/50 backdrop-blur-sm h-[80vh] overflow-y-auto">
-              <SheetHeader className="mb-6">
-                <SheetTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent flex items-center gap-2">
-                  <Scroll className="h-6 w-6 text-primary" />
-                  Studio Rules & Guidelines
+            <SheetContent side="bottom" className="bg-black/95 border-border/50 backdrop-blur-sm h-[90vh] sm:h-[85vh] overflow-y-auto">
+              <SheetHeader className="mb-4 sm:mb-6 px-2 sm:px-0">
+                <SheetTitle className="text-lg sm:text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent flex items-center gap-2 justify-center sm:justify-start">
+                  <Scroll className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+                  <span className="text-center sm:text-left">Studio Rules & Guidelines</span>
                 </SheetTitle>
               </SheetHeader>
-              <div className="space-y-6 text-left">
+              <div className="space-y-4 sm:space-y-6 text-left px-2 sm:px-4 md:px-6">
                 {/* Entry & Exit Protocols */}
-                <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-lg p-6">
-                  <h3 className="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
-                    <AlertOctagon className="h-5 w-5" />
+                <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-lg p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold text-blue-400 mb-3 sm:mb-4 flex items-center gap-2">
+                    <AlertOctagon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                     🚪 Entry & Exit Protocols (MANDATORY)
-                  </h3>                  <div className="space-y-4 text-foreground/90">
-                    <div className="bg-blue-500/10 border-l-4 border-blue-400 pl-4 py-2">
-                      <p className="font-semibold text-blue-300 mb-2">Upon Arrival:</p>
-                      <ul className="space-y-1 text-sm">
+                  </h3>
+                  <div className="space-y-3 sm:space-y-4 text-foreground/90">
+                    <div className="bg-blue-500/10 border-l-4 border-blue-400 pl-3 sm:pl-4 py-2">
+                      <p className="font-semibold text-blue-300 mb-2 text-sm sm:text-base">Upon Arrival:</p>
+                      <ul className="space-y-1 text-xs sm:text-sm">
                         <li>• <span className="font-medium">Remove shoes immediately</span> - use provided studio slides ONLY</li>
                         <li>• <span className="font-medium">Inspect the studio thoroughly</span> - check all equipment, surfaces, cleanliness, and supplies</li>
                         <li>• <span className="font-medium">Check for supplies</span> - ensure wet wipes, trash bags, and slides are available</li>
@@ -143,9 +144,9 @@ export default function ActionButtons() {
                         <li>• <span className="text-red-300 font-medium">DO NOT start your session until you've reported any issues!</span></li>
                       </ul>
                     </div>
-                    <div className="bg-green-500/10 border-l-4 border-green-400 pl-4 py-2">
-                      <p className="font-semibold text-green-300 mb-2">Before Leaving:</p>
-                      <ul className="space-y-1 text-sm">
+                    <div className="bg-green-500/10 border-l-4 border-green-400 pl-3 sm:pl-4 py-2">
+                      <p className="font-semibold text-green-300 mb-2 text-sm sm:text-base">Before Leaving:</p>
+                      <ul className="space-y-1 text-xs sm:text-sm">
                         <li>• <span className="font-medium">Clean ALL surfaces</span> - wipe tables, equipment, and high-touch areas with wet wipes</li>
                         <li>• <span className="font-medium">Handle trash properly:</span></li>
                         <li className="ml-4">→ <span className="text-yellow-300">Dry/non-food trash</span> - can go in studio trash bin</li>
@@ -433,21 +434,21 @@ export default function ActionButtons() {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="bg-black/50 border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300 hover:border-red-400/70 transition-all duration-300 font-semibold px-6 py-3 min-w-[160px]"
+                className="bg-black/50 border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300 hover:border-red-400/70 transition-all duration-300 font-semibold px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base min-h-[44px] w-full"
               >
-                <Flag className="h-5 w-5 mr-2" />
-                File a Report
+                <Flag className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+                <span className="truncate">File a Report</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="bg-black/95 border-border/50 backdrop-blur-sm h-[90vh] overflow-y-auto">
-              <SheetHeader className="mb-6">
-                <SheetTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-red-600 flex items-center gap-2">
-                  <AlertOctagon className="h-6 w-6 text-red-400" />
-                  File a Report
+            <SheetContent side="bottom" className="bg-black/95 border-border/50 backdrop-blur-sm h-[95vh] sm:h-[90vh] overflow-y-auto">
+              <SheetHeader className="mb-4 sm:mb-6 px-2 sm:px-0">
+                <SheetTitle className="text-lg sm:text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-red-600 flex items-center gap-2 justify-center sm:justify-start">
+                  <AlertOctagon className="h-5 w-5 sm:h-6 sm:w-6 text-red-400 flex-shrink-0" />
+                  <span className="text-center sm:text-left">File a Report</span>
                 </SheetTitle>
               </SheetHeader>
               
-              <form onSubmit={handleReportSubmit} className="space-y-6 max-w-2xl mx-auto">
+              <form onSubmit={handleReportSubmit} className="space-y-4 sm:space-y-6 max-w-2xl mx-auto px-2 sm:px-4">
                 {/* Encouraging Header */}
                 <div className="bg-green-500/15 border border-green-400/40 rounded-lg p-4">
                   <div className="text-center mb-3">
@@ -466,7 +467,7 @@ export default function ActionButtons() {
                     </div>
                   </div>
                 </div>                <div className="space-y-2">
-                  <Label htmlFor="subject" className="text-foreground font-semibold">
+                  <Label htmlFor="subject" className="text-foreground font-semibold text-sm sm:text-base">
                     Report Subject *
                   </Label>
                   <Input
@@ -476,20 +477,20 @@ export default function ActionButtons() {
                     value={reportForm.subject}
                     onChange={(e) => setReportForm(prev => ({ ...prev, subject: e.target.value }))}
                     required
-                    className="bg-black/50 border-border/50 text-foreground placeholder:text-foreground/50"
+                    className="bg-black/50 border-border/50 text-foreground placeholder:text-foreground/50 min-h-[44px] text-sm sm:text-base"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="reportType" className="text-foreground font-semibold">
+                    <Label htmlFor="reportType" className="text-foreground font-semibold text-sm sm:text-base">
                       Report Type *
                     </Label>
                     <Select 
                       value={reportForm.reportType} 
                       onValueChange={(value) => setReportForm(prev => ({ ...prev, reportType: value }))}
                     >
-                      <SelectTrigger className="bg-black/50 border-border/50 text-foreground">
+                      <SelectTrigger className="bg-black/50 border-border/50 text-foreground min-h-[44px]">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent className="bg-black/95 border-border/50">
@@ -504,14 +505,14 @@ export default function ActionButtons() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="priority" className="text-foreground font-semibold">
+                    <Label htmlFor="priority" className="text-foreground font-semibold text-sm sm:text-base">
                       Priority *
                     </Label>
                     <Select 
                       value={reportForm.priority} 
                       onValueChange={(value) => setReportForm(prev => ({ ...prev, priority: value }))}
                     >
-                      <SelectTrigger className="bg-black/50 border-border/50 text-foreground">
+                      <SelectTrigger className="bg-black/50 border-border/50 text-foreground min-h-[44px]">
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
                       <SelectContent className="bg-black/95 border-border/50">
@@ -525,8 +526,8 @@ export default function ActionButtons() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-foreground font-semibold">
-                    Description * <span className="text-green-400 text-sm font-normal">(The more details, the more helpful!)</span>
+                  <Label htmlFor="description" className="text-foreground font-semibold text-sm sm:text-base">
+                    Description * <span className="text-green-400 text-xs sm:text-sm font-normal">(The more details, the more helpful!)</span>
                   </Label>
                   <Textarea
                     id="description"
@@ -534,14 +535,14 @@ export default function ActionButtons() {
                     value={reportForm.description}
                     onChange={(e) => setReportForm(prev => ({ ...prev, description: e.target.value }))}
                     required
-                    rows={6}
-                    className="bg-black/50 border-border/50 text-foreground placeholder:text-foreground/50 resize-none"
+                    rows={4}
+                    className="bg-black/50 border-border/50 text-foreground placeholder:text-foreground/50 resize-none text-sm sm:text-base min-h-[100px]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contactInfo" className="text-foreground font-semibold">
-                    Contact Information (Optional) <span className="text-blue-400 text-sm font-normal">- In case we want to thank you personally!</span>
+                  <Label htmlFor="contactInfo" className="text-foreground font-semibold text-sm sm:text-base">
+                    Contact Information (Optional) <span className="text-blue-400 text-xs sm:text-sm font-normal">- In case we want to thank you personally!</span>
                   </Label>
                   <Input
                     id="contactInfo"
@@ -549,20 +550,20 @@ export default function ActionButtons() {
                     placeholder="Your preferred contact method if follow-up is needed (we promise it's only for good things!)"
                     value={reportForm.contactInfo}
                     onChange={(e) => setReportForm(prev => ({ ...prev, contactInfo: e.target.value }))}
-                    className="bg-black/50 border-border/50 text-foreground placeholder:text-foreground/50"
+                    className="bg-black/50 border-border/50 text-foreground placeholder:text-foreground/50 min-h-[44px] text-sm sm:text-base"
                   />
                 </div>                <div className="space-y-2">
-                  <Label className="text-foreground font-semibold">
-                    Take Photos (Optional) <span className="text-purple-400 text-sm font-normal">- Pictures really help us understand!</span>
+                  <Label className="text-foreground font-semibold text-sm sm:text-base">
+                    Take Photos (Optional) <span className="text-purple-400 text-xs sm:text-sm font-normal">- Pictures really help us understand!</span>
                   </Label>
                   
                   {/* Camera Interface Placeholder */}
-                  <div className="bg-slate-500/10 border border-slate-500/30 rounded-lg p-4">
+                  <div className="bg-slate-500/10 border border-slate-500/30 rounded-lg p-3 sm:p-4">
                     <div className="text-center">
-                      <div className="text-2xl mb-2">📸</div>
-                      <p className="font-medium text-slate-300 mb-2">Website Camera</p>
-                      <div className="bg-black/50 border border-border/50 rounded-lg h-32 flex items-center justify-center">
-                        <p className="text-foreground/60 text-sm">Camera interface will be implemented here</p>
+                      <div className="text-xl sm:text-2xl mb-2">📸</div>
+                      <p className="font-medium text-slate-300 mb-2 text-sm sm:text-base">Website Camera</p>
+                      <div className="bg-black/50 border border-border/50 rounded-lg h-24 sm:h-32 flex items-center justify-center">
+                        <p className="text-foreground/60 text-xs sm:text-sm">Camera interface will be implemented here</p>
                       </div>
                       <p className="text-xs text-foreground/60 mt-2">
                         Use this camera to take photos - no external uploads allowed
@@ -587,30 +588,32 @@ export default function ActionButtons() {
                   </div>
                 </div>
 
-                <div className="flex gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setReportOpen(false)}
-                    className="flex-1 bg-black/50 border-border/50 text-foreground hover:bg-border/20"
+                    className="flex-1 bg-black/50 border-border/50 text-foreground hover:bg-border/20 min-h-[44px] text-sm sm:text-base"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={!reportForm.subject || !reportForm.description || isSubmittingReport}
-                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold disabled:opacity-50"
+                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold disabled:opacity-50 min-h-[44px] text-sm sm:text-base"
                   >
                     {isSubmittingReport ? (
-                      <>
+                      <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Submitting Report...
-                      </>
+                        <span className="hidden sm:inline">Submitting Report...</span>
+                        <span className="sm:hidden">Submitting...</span>
+                      </div>
                     ) : (
-                      <>
-                        <Send className="h-4 w-4 mr-2" />
-                        Submit Report & Earn Points! 🎁
-                      </>
+                      <div className="flex items-center justify-center">
+                        <Send className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <span className="hidden sm:inline">Submit Report & Earn Points! 🎁</span>
+                        <span className="sm:hidden">Submit Report 🎁</span>
+                      </div>
                     )}
                   </Button>
                 </div>
@@ -623,21 +626,21 @@ export default function ActionButtons() {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="bg-black/50 border-green-500/50 text-green-400 hover:bg-green-500/10 hover:text-green-300 hover:border-green-400/70 transition-all duration-300 font-semibold px-6 py-3 min-w-[160px]"
+                className="bg-black/50 border-green-500/50 text-green-400 hover:bg-green-500/10 hover:text-green-300 hover:border-green-400/70 transition-all duration-300 font-semibold px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base min-h-[44px] w-full"
               >
-                <Sparkles className="h-5 w-5 mr-2" />
-                Session Complete
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+                <span className="truncate">Session Complete</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="bg-black/95 border-border/50 backdrop-blur-sm h-[60vh] overflow-y-auto">
-              <SheetHeader className="mb-6">
-                <SheetTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-600 flex items-center gap-2">
-                  <Sparkles className="h-6 w-6 text-green-400" />
-                  Session Complete - Document Clean Studio
+            <SheetContent side="bottom" className="bg-black/95 border-border/50 backdrop-blur-sm h-[80vh] sm:h-[60vh] overflow-y-auto">
+              <SheetHeader className="mb-4 sm:mb-6 px-2 sm:px-0">
+                <SheetTitle className="text-lg sm:text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-green-600 flex items-center gap-2 justify-center sm:justify-start">
+                  <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-green-400 flex-shrink-0" />
+                  <span className="text-center sm:text-left">Session Complete - Document Clean Studio</span>
                 </SheetTitle>
               </SheetHeader>
               
-              <div className="space-y-6 max-w-2xl mx-auto">
+              <div className="space-y-4 sm:space-y-6 max-w-2xl mx-auto px-2 sm:px-4">
                 {/* Instructions Header */}
                 <div className="bg-green-500/15 border border-green-400/40 rounded-lg p-4">
                   <div className="text-center mb-3">
@@ -657,23 +660,23 @@ export default function ActionButtons() {
                 </div>
 
                 {/* Camera Interface Placeholder */}
-                <div className="bg-slate-500/10 border border-slate-500/30 rounded-lg p-6">
-                  <h3 className="text-lg font-bold text-slate-300 mb-4 text-center">
+                <div className="bg-slate-500/10 border border-slate-500/30 rounded-lg p-4 sm:p-6">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-300 mb-3 sm:mb-4 text-center">
                     📷 Studio Camera
                   </h3>
-                  <div className="bg-black/50 border border-border/50 rounded-lg h-64 flex items-center justify-center">
+                  <div className="bg-black/50 border border-border/50 rounded-lg h-48 sm:h-64 flex items-center justify-center">
                     <div className="text-center text-foreground/60">
-                      <div className="text-4xl mb-2">📸</div>
-                      <p className="font-medium">Camera interface will be implemented here</p>
-                      <p className="text-sm">Take photos of all cleaned areas</p>
+                      <div className="text-3xl sm:text-4xl mb-2">📸</div>
+                      <p className="font-medium text-sm sm:text-base">Camera interface will be implemented here</p>
+                      <p className="text-xs sm:text-sm">Take photos of all cleaned areas</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Instructions */}
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                  <h3 className="font-bold text-blue-300 mb-2">📋 What to Photograph:</h3>
-                  <ul className="space-y-1 text-sm text-foreground/90">
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 sm:p-4">
+                  <h3 className="font-bold text-blue-300 mb-2 text-sm sm:text-base">📋 What to Photograph:</h3>
+                  <ul className="space-y-1 text-xs sm:text-sm text-foreground/90">
                     <li>• All tables and work surfaces (showing they're clean)</li>
                     <li>• Equipment in proper positions</li>
                     <li>• Floor area (showing no trash or spills)</li>
@@ -681,30 +684,32 @@ export default function ActionButtons() {
                   </ul>
                 </div>
 
-                <div className="flex gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setSessionCompleteOpen(false)}
-                    className="flex-1 bg-black/50 border-border/50 text-foreground hover:bg-border/20"
+                    className="flex-1 bg-black/50 border-border/50 text-foreground hover:bg-border/20 min-h-[44px] text-sm sm:text-base"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleSessionComplete}
                     disabled={isSubmittingSessionComplete}
-                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold disabled:opacity-50"
+                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold disabled:opacity-50 min-h-[44px] text-sm sm:text-base"
                   >
                     {isSubmittingSessionComplete ? (
-                      <>
+                      <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Submitting Photos...
-                      </>
+                        <span className="hidden sm:inline">Submitting Photos...</span>
+                        <span className="sm:hidden">Submitting...</span>
+                      </div>
                     ) : (
-                      <>
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Submit Clean Studio Photos 📸
-                      </>
+                      <div className="flex items-center justify-center">
+                        <Sparkles className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <span className="hidden sm:inline">Submit Clean Studio Photos 📸</span>
+                        <span className="sm:hidden">Submit Photos 📸</span>
+                      </div>
                     )}
                   </Button>
                 </div>
@@ -725,10 +730,10 @@ export default function ActionButtons() {
                 });
               }
             }}
-            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold px-8 py-3 shadow-lg hover:shadow-xl transition-all duration-300 min-w-[180px]"
+            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold px-6 sm:px-8 py-3 sm:py-4 shadow-lg hover:shadow-xl transition-all duration-300 min-h-[44px] w-full text-sm sm:text-base"
           >
-            <Calendar className="h-5 w-5 mr-2" />
-            Reserve Your Time
+            <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+            <span className="truncate">Reserve Your Time</span>
           </Button>
         </div>
       </div>

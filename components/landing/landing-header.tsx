@@ -9,16 +9,16 @@ export default async function LandingHeader() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/30 bg-black/80 backdrop-blur-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           <Link href="/" className="flex items-center">
             <div>
-              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 to-zinc-300 tracking-tight">
-                Creative Studio{" "}
-                <span className="text-3xl font-black text-amber-500 drop-shadow-lg"
+              <h1 className="text-lg sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 to-zinc-300 tracking-tight">
+                <span className="hidden sm:inline">Creative Studio{" "}</span>
+                <span className="sm:hidden">CS{" "}</span>
+                <span className="text-xl sm:text-3xl font-black text-amber-500 drop-shadow-lg"
                       style={{ 
                         textShadow: '0 0 12px rgba(245, 158, 11, 0.8), 0 0 24px rgba(245, 158, 11, 0.6), 0 0 36px rgba(245, 158, 11, 0.4)' 
                       }}>
@@ -27,23 +27,27 @@ export default async function LandingHeader() {
               </h1>
             </div>
           </Link>
-          <nav className="flex items-center gap-4">
+          <nav className="flex items-center gap-2 sm:gap-4">
             {user ? (
               <>
-                <Button variant="ghost" asChild>
+                <Button variant="ghost" size="sm" className="text-xs sm:text-sm" asChild>
                   <Link href="/dashboard">Dashboard</Link>
                 </Button>
-                <ClientSignOutButton variant="outline">
-                  Sign Out
+                <ClientSignOutButton variant="outline" size="sm" className="text-xs sm:text-sm">
+                  <span className="hidden sm:inline">Sign Out</span>
+                  <span className="sm:hidden">Out</span>
                 </ClientSignOutButton>
               </>
             ) : (
               <>
-                <Button variant="ghost" asChild>
-                  <Link href="/auth/login">Member Access</Link>
+                <Button variant="ghost" size="sm" className="text-xs sm:text-sm" asChild>
+                  <Link href="/auth/login">
+                    <span className="hidden sm:inline">Member Access</span>
+                    <span className="sm:hidden">Login</span>
+                  </Link>
                 </Button>
-                <Button className="bg-gradient-to-r from-primary to-accent text-primary-foreground transition-shadow" asChild>
-                  <Link href="/apply">Apply Now</Link>
+                <Button className="bg-gradient-to-r from-primary to-accent text-primary-foreground transition-shadow text-xs sm:text-sm" size="sm" asChild>
+                  <Link href="/apply">Apply</Link>
                 </Button>
               </>
             )}

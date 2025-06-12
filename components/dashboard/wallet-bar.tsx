@@ -175,7 +175,7 @@ export default function WalletBar() {
 
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/90 backdrop-blur-sm border border-white/5 relative"
+      <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-black/90 backdrop-blur-sm border border-white/5 relative"
            style={{
              boxShadow: `
                inset 0 4px 8px rgba(0,0,0,0.9),
@@ -194,9 +194,9 @@ export default function WalletBar() {
               size="sm"
               onClick={refreshWallet}
               disabled={refreshing}
-              className="h-6 w-6 p-0 hover:bg-white/10 transition-all duration-200"
+              className="h-5 w-5 sm:h-6 sm:w-6 p-0 hover:bg-white/10 transition-all duration-200"
             >
-              <RefreshCw className={`h-3 w-3 text-primary/70 hover:text-primary ${refreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary/70 hover:text-primary ${refreshing ? 'animate-spin' : ''}`} />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
@@ -206,13 +206,14 @@ export default function WalletBar() {
 
         <Dialog>
           <DialogTrigger asChild>
-            <div className="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded-full transition-all duration-200 group relative" style={{ overflow: 'visible' }}>
-              <Wallet className="h-4 w-4 text-primary group-hover:text-accent transition-colors" />
+            <div className="flex items-center gap-1 sm:gap-2 cursor-pointer hover:bg-white/10 px-1 sm:px-2 py-1 rounded-full transition-all duration-200 group relative" style={{ overflow: 'visible' }}>
+              <Wallet className="h-3 w-3 sm:h-4 sm:w-4 text-primary group-hover:text-accent transition-colors" />
               <div className="flex flex-col min-w-0 flex-1 relative" style={{ overflow: 'visible' }}>
                 <div className="flex items-center gap-1 mb-1 relative" style={{ overflow: 'visible' }}>
-                  <span className="text-sm font-medium text-foreground/90">Points</span>
+                  <span className="text-xs sm:text-sm font-medium text-foreground/90 hidden sm:inline">Points</span>
+                  <span className="text-xs sm:hidden font-medium text-foreground/90">Pts</span>
                   <div className="relative overflow-visible">
-                    <span className={`text-sm font-bold transition-all duration-500 ${
+                    <span className={`text-xs sm:text-sm font-bold transition-all duration-500 ${
                       pointsChanging ? 'transform scale-110' : ''
                     } ${
                       wallet.monthly_points <= 5 ? 'text-red-400' : 
@@ -222,9 +223,9 @@ export default function WalletBar() {
                       {wallet.monthly_points}
                     </span>
                   </div>
-                  <span className="text-sm text-foreground/60">/{wallet.monthly_points_max}</span>
+                  <span className="text-xs sm:text-sm text-foreground/60">/{wallet.monthly_points_max}</span>
                 </div>
-                <div className={`relative w-24 h-2 bg-black/50 rounded-full border border-white/20 overflow-hidden transition-all duration-300 ${
+                <div className={`relative w-16 sm:w-24 h-1.5 sm:h-2 bg-black/50 rounded-full border border-white/20 overflow-hidden transition-all duration-300 ${
                   pointsChanging ? 'ring-2 ring-primary/50 ring-opacity-75 animate-pulse' : ''
                 }`}>
                   <div 
@@ -313,19 +314,20 @@ export default function WalletBar() {
 
         <Dialog>
           <DialogTrigger asChild>
-            <div className="flex items-center gap-2 cursor-pointer hover:bg-white/10 px-2 py-1 rounded-full transition-all duration-200 group">
-              <Calendar className="h-4 w-4 text-orange-500 group-hover:text-orange-400 transition-colors" />
+            <div className="flex items-center gap-1 sm:gap-2 cursor-pointer hover:bg-white/10 px-1 sm:px-2 py-1 rounded-full transition-all duration-200 group">
+              <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500 group-hover:text-orange-400 transition-colors" />
               <div className="flex flex-col min-w-0 flex-1">
                 <div className="flex items-center gap-1 mb-1">
-                  <span className="text-xs font-medium text-foreground/90">Weekend Slots</span>
+                  <span className="text-xs font-medium text-foreground/90 hidden sm:inline">Weekend Slots</span>
+                  <span className="text-xs font-medium text-foreground/90 sm:hidden">Wknd</span>
                   <span className={`text-xs font-bold ${
                     weekendSlotsRemaining === 0 ? 'text-red-400' : 
                     weekendSlotsRemaining <= 2 ? 'text-yellow-400' : 
                     'text-orange-400'
                   }`}>{weekendSlotsRemaining}</span>
-                  <span className="text-xs text-foreground/60">/{wallet.weekend_slots_max} slots left</span>
+                  <span className="text-xs text-foreground/60">/{wallet.weekend_slots_max} <span className="hidden sm:inline">slots left</span></span>
                 </div>
-                <div className="relative w-20 h-1.5 bg-black/50 rounded-full border border-white/20 overflow-hidden">
+                <div className="relative w-14 sm:w-20 h-1.5 bg-black/50 rounded-full border border-white/20 overflow-hidden">
                   <div 
                     className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-out ${
                       weekendSlotsRemaining === 0 
