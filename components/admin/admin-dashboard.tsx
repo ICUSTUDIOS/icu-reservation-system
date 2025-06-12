@@ -33,6 +33,7 @@ import {
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase/client"
 import Link from "next/link"
+import AdminInviteUser from "@/components/admin/admin-invite-user"
 
 interface AdminDashboardProps {
   userRole: string
@@ -653,10 +654,10 @@ export default function AdminDashboard({ userRole }: AdminDashboardProps) {  con
           </div>
         )}        {/* User Management */}
         {activeTab === 'users' && (
-          <div className="space-y-4 sm:space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+          <div className="space-y-4 sm:space-y-6">            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
               <h2 className="text-xl sm:text-2xl font-bold">User Management</h2>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+                <AdminInviteUser />
                 <Button
                   variant="outline"
                   size="sm"

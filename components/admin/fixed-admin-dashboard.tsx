@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from '@/lib/supabase/client'
-import { Shield, Users, FileText, Loader2, UserCheck, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react"
+import { Shield, Users, FileText, Loader2, UserCheck, Clock, CheckCircle, XCircle, AlertCircle, Mail, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+import AdminInviteUser from "./admin-invite-user"
 
 interface Application {
   id: number
@@ -24,14 +25,13 @@ export default function FixedAdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [applicationsLoading, setApplicationsLoading] = useState(false)
   const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalBookings: 0,
+    totalUsers: 0,    totalBookings: 0,
     totalReports: 0,
     totalApplications: 0,
     pendingApplications: 0
   })
   const [applications, setApplications] = useState<Application[]>([])
-  const [selectedTab, setSelectedTab] = useState<'overview' | 'applications'>('overview')
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'applications' | 'users'>('overview')
 
   useEffect(() => {
     loadData()
@@ -154,8 +154,7 @@ export default function FixedAdminDashboard() {
             className={selectedTab === 'overview' ? 'bg-amber-600 hover:bg-amber-700' : 'border-amber-600/30 text-amber-400 hover:bg-amber-600/10'}
           >
             Overview
-          </Button>
-          <Button
+          </Button>          <Button
             variant={selectedTab === 'applications' ? 'default' : 'outline'}
             onClick={() => {
               setSelectedTab('applications')
@@ -164,6 +163,14 @@ export default function FixedAdminDashboard() {
             className={selectedTab === 'applications' ? 'bg-amber-600 hover:bg-amber-700' : 'border-amber-600/30 text-amber-400 hover:bg-amber-600/10'}
           >
             Applications {stats.pendingApplications > 0 && <Badge className="ml-2 bg-red-500 text-white">{stats.pendingApplications}</Badge>}
+          </Button>
+          <Button
+            variant={selectedTab === 'users' ? 'default' : 'outline'}
+            onClick={() => setSelectedTab('users')}
+            className={selectedTab === 'users' ? 'bg-amber-600 hover:bg-amber-700' : 'border-amber-600/30 text-amber-400 hover:bg-amber-600/10'}
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Users
           </Button>
         </div>
 
@@ -373,10 +380,61 @@ export default function FixedAdminDashboard() {
                       )}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                )            )}
           </div>
+        )}
+
+        {/* {selectedTab === 'users' && ( */}
+        {(selectedTab as string) === 'users' && (
+          <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Users className="h-6 w-6 text-blue-400" />
+                User Management
+              </h2>
+              <AdminInviteUser />
+            </div>
+            
+            <div className="text-gray-300">
+              <p className="mb-4">Manage users and send invitations to new members.</p>
+              
+              <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-3">Invite New User</h3>
+                <p className="text-gray-400 text-sm mb-4">
+                  Click the "Invite New User" button above to send an invitation email to a new user. 
+                  You can set their default role (Member or Admin) and starting points balance.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Mail className="h-4 w-4 text-blue-400" />
+                      <span className="font-medium text-blue-400">Email Invitation</span>
+                    </div>
+                    <p className="text-gray-300">User receives Supabase invitation email</p>
+                  </div>
+                  
+                  <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <UserCheck className="h-4 w-4 text-green-400" />
+                      <span className="font-medium text-green-400">Default Role</span>
+                    </div>
+                    <p className="text-gray-300">Set as Member or Admin</p>
+                  </div>
+                  
+                  <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="h-4 w-4 text-purple-400" />
+                      <span className="font-medium text-purple-400">Starting Points</span>
+                    </div>
+                    <p className="text-gray-300">Configure initial points balance</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
         )}
       </div>
     </div>

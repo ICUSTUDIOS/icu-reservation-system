@@ -24,7 +24,6 @@ export default async function AdminPage() {
     .select('role')
     .eq('auth_id', user.id)
     .single()
-
   if (!member || !['admin', 'super_admin'].includes(member.role)) {
     redirect("/dashboard")
   }
