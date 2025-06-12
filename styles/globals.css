@@ -1,0 +1,61 @@
+/* Global custom styles for ICU Creative Studio 1 */
+
+/* Custom focus rings */
+.focus-ring:focus {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* Custom button animations */
+.btn-glow:hover {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Studio branding colors */
+:root {
+  --studio-primary: #f59e0b;
+  --studio-primary-dark: #d97706;
+  --studio-secondary: #7c2d12;
+  --studio-accent: #a855f7;
+}
+
+/* Loading states */
+.pulse-slow {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-up {
+  animation: slideInUp 0.3s ease-out;
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Custom spacing utilities */
+.space-y-8 > * + * {
+  margin-top: 2rem;
+}
+
+/* Studio-specific hover effects */
+.hover-studio:hover {
+  background: linear-gradient(45deg, #7c2d12, #f59e0b);
+  transform: translateY(-1px);
+  transition: all 0.3s ease;
+}
