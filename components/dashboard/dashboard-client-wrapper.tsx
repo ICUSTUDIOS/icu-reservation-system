@@ -3,7 +3,7 @@
 import { LogOut, Shield } from "lucide-react"
 import ClientSignOutButton from "@/components/client-signout-button"
 import TimeSlotPicker from "@/components/dashboard/time-slot-picker"
-import MyBookings from "@/components/dashboard/my-bookings"
+import MyBookings from "@/components/dashboard/my-bookings-simple"
 import HeroSection from "@/components/dashboard/hero-section"
 import ActionButtons from "@/components/dashboard/action-buttons"
 import { Toaster } from "sonner"
@@ -133,10 +133,9 @@ export default function DashboardClientWrapper({
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">        <div className="space-y-12">
-          <ActionButtons />
-          <HeroSection />
+          <ActionButtons />          <HeroSection />
           <TimeSlotPicker bookings={allBookings} weekendSlots={weekendSlotInfo} />
-          {/* <MyBookings bookings={userBookings} /> */}
+          <MyBookings bookings={userBookings} />
         </div>
       </main>
 
