@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useActionState } from "react"
+import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button" // Main button component
 import { Input } from "@/components/ui/input"
 import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 import { signIn } from "@/lib/actions"
 
 // Import necessary dialog components
@@ -17,14 +19,16 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 
-function SubmitButton({ isPending }: { isPending: boolean }) {
+function SubmitButton() {
+  const { pending } = useFormStatus()
+
   return (
     <Button
       type="submit"
-      disabled={isPending}
+      disabled={pending}
       className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground py-3 text-base font-semibold rounded-md h-12 shadow-trap-glow hover:shadow-trap-glow-strong transition-all"
     >
-      {isPending ? (
+      {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Signing in...
@@ -38,18 +42,9 @@ function SubmitButton({ isPending }: { isPending: boolean }) {
 
 export default function LoginForm() {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
-  const [error, setError] = useState<string | null>(null)
+  const [state, formAction] = useActionState(signIn, null)
 
-  const handleSubmit = async (formData: FormData) => {
-    setError(null)
-    startTransition(async () => {
-      const result = await signIn(null, formData)
-      if (result?.error) {
-        setError(result.error)
-      }
-    })
-  }
+  // Note: Server-side redirect handles success, so no need for client-side redirect
 
   return (
     <div className="w-full max-w-md space-y-8 p-8 bg-black/80 backdrop-blur-sm border border-border/30 rounded-xl shadow-2xl shadow-black/50">
@@ -80,10 +75,10 @@ export default function LoginForm() {
         <p className="text-md text-muted-foreground">Access your creative space.</p>
       </div>
 
-      <form action={handleSubmit} className="space-y-6">
-        {error && (
+      <form action={formAction} className="space-y-6">
+        {state?.error && (
           <div className="bg-destructive/10 border border-destructive/50 text-destructive-foreground px-4 py-3 rounded-md text-sm">
-            {error}
+            {state.error}
           </div>
         )}
 
@@ -115,7 +110,7 @@ export default function LoginForm() {
           </div>
         </div>
 
-        <SubmitButton isPending={isPending} />
+        <SubmitButton />
 
         <div className="text-center text-sm text-muted-foreground">
           Don't have an account?{" "}
