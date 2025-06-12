@@ -64,7 +64,11 @@ function SubmitButton({ isLoading }: { isLoading: boolean }) {
     <Button
       type="submit"
       disabled={isLoading}
-      className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground py-3 text-base font-semibold rounded-md h-12 shadow-md hover:shadow-lg transition-all"
+      className={`w-full py-3 text-base font-semibold rounded-md h-12 shadow-md transition-all ${
+        isLoading 
+          ? 'bg-gray-600 cursor-not-allowed opacity-75' 
+          : 'bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 hover:shadow-lg'
+      } text-primary-foreground`}
     >
       {isLoading ? (
         <>
@@ -151,8 +155,14 @@ export default function ApplicationForm() {
       })
     }
   }
-    const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Prevent multiple submissions
+    if (isLoading) {
+      return
+    }
     
     // Validate all required fields before submission
     const requiredFields = {
@@ -227,6 +237,7 @@ export default function ApplicationForm() {
         console.error('Application submission error:', error)
         console.error('Error details:', JSON.stringify(error, null, 2))
         toast.error(`Failed to submit application: ${error.message || 'Unknown error'}`)
+        setIsLoading(false) // Re-enable the button on error
       } else {
         console.log('Application submitted successfully:', data)
         toast.success("Application submitted successfully! Redirecting to confirmation page...")
@@ -234,13 +245,13 @@ export default function ApplicationForm() {
         setTimeout(() => {
           router.push("/apply/success?submitted=true")
         }, 1500)
+        // Don't re-enable loading here since we're redirecting
       }
     } catch (error) {
       console.error('Application submission error:', error)
       toast.error("Failed to submit application. Please try again.")
+      setIsLoading(false) // Re-enable the button on error
     }
-    
-    setIsLoading(false)
   }
 
   const validateCurrentStep = () => {
@@ -771,24 +782,23 @@ export default function ApplicationForm() {
           </div>
         </div>
       </div>      {/* Form */}
-      <div className="bg-black/80 backdrop-blur-sm border border-border/30 rounded-xl p-4 shadow-2xl">
+      <div className={`bg-black/80 backdrop-blur-sm border border-border/30 rounded-xl p-4 shadow-2xl transition-opacity ${isLoading ? 'opacity-75 pointer-events-none' : ''}`}>
         <form onSubmit={handleSubmit}>
           {renderStep()}
-            {/* Navigation Buttons */}
-          <div className="flex justify-between items-center mt-4 pt-3 border-t border-border/30">
+            {/* Navigation Buttons */}          <div className="flex justify-between items-center mt-4 pt-3 border-t border-border/30">
             {currentStep > 1 && (
               <Button
                 type="button"
                 variant="outline"
                 onClick={prevStep}
-                className="bg-black/50 border-border/50"
+                disabled={isLoading}
+                className={`bg-black/50 border-border/50 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Previous
               </Button>
             )}
-            
-            <div className={currentStep === 1 ? "ml-auto" : ""}>
+              <div className={currentStep === 1 ? "ml-auto" : ""}>
               {currentStep < totalSteps ? (
                 <Button
                   type="button"
