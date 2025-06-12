@@ -114,3 +114,61 @@ ALTER TABLE members ALTER COLUMN weekend_slots_max SET DEFAULT 6;
 5. 🔄 **Ready for user testing**
 
 Users can now enjoy **double the weekend time** (6 hours instead of 3 hours) while maintaining fair access for all members.
+=======
+# Weekend Slots Update - 6 Hour Sessions
+
+## Update Summary
+Updated weekend booking slots from 4-hour to 6-hour sessions to provide more value for weekend studio access.
+
+## Changes Made
+
+### Slot Duration Changes
+- **Weekday slots**: Remain 4 hours (25 points)
+- **Weekend slots**: Updated to 6 hours (50 points)
+
+### Point System Adjustment
+- Weekend sessions now provide 50% more studio time
+- Better value proposition for weekend bookings
+- Maintains point balance with longer access periods
+
+### Database Updates
+Applied the `update-weekend-slots-to-6.sql` migration:
+```sql
+-- Updated booking_slots table
+-- Modified weekend slot end_times to add 2 additional hours
+-- Applied to all Saturday and Sunday slots
+```
+
+### Impact on Members
+- Existing weekend bookings: Automatically extended by 2 hours
+- Future weekend bookings: 6-hour sessions by default
+- Point costs remain the same (50 points for weekends)
+- Better studio utilization on weekends
+
+### Schedule Changes
+**Weekend Schedule (Saturday/Sunday):**
+- Morning: 8:00 AM - 2:00 PM (6 hours)
+- Afternoon: 2:00 PM - 8:00 PM (6 hours)
+
+**Weekday Schedule (Monday-Friday):**
+- Morning: 9:00 AM - 1:00 PM (4 hours)
+- Afternoon: 1:00 PM - 5:00 PM (4 hours)
+- Evening: 5:00 PM - 9:00 PM (4 hours)
+
+### Benefits
+1. **Enhanced Value**: More studio time for weekend sessions
+2. **Improved Workflow**: Longer sessions allow for more complex projects
+3. **Better Utilization**: Optimal use of weekend studio availability
+4. **Member Satisfaction**: Increased value for weekend point expenditure
+
+### Implementation Date
+This update was applied successfully with zero downtime and all existing bookings were automatically adjusted.
+
+## Technical Details
+- Migration script: `scripts/archive/update-weekend-slots-to-6.sql`
+- Affected tables: `booking_slots`
+- Updated scheduling logic in booking components
+- Admin panel reflects new weekend durations
+
+All systems are functioning normally with the new 6-hour weekend slots.
+>>>>>>> Stashed changes
