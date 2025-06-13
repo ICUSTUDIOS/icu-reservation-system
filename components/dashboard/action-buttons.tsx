@@ -744,9 +744,9 @@ export default function ActionButtons() {
             variant="default"
             size="lg"
             onClick={() => {
-              const timePicker = document.getElementById('time-slot-picker');
-              if (timePicker) {
-                timePicker.scrollIntoView({ 
+              const selectDate = document.getElementById('select-date');
+              if (selectDate) {
+                selectDate.scrollIntoView({ 
                   behavior: 'smooth',
                   block: 'start'
                 });

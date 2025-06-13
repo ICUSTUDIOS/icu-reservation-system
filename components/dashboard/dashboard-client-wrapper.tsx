@@ -3,7 +3,7 @@
 import { LogOut, Shield } from "lucide-react"
 import ClientSignOutButton from "@/components/client-signout-button"
 import TimeSlotPicker from "@/components/dashboard/time-slot-picker"
-import MyBookings from "@/components/dashboard/my-bookings-simple"
+import MyBookings from "@/components/dashboard/my-bookings"
 import HeroSection from "@/components/dashboard/hero-section"
 import ActionButtons from "@/components/dashboard/action-buttons"
 import { Toaster } from "sonner"
@@ -58,9 +58,9 @@ export default function DashboardClientWrapper({
                   ICU
                 </span>
               </div>              <div>
-                <h1 className="text-sm sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 to-zinc-300 tracking-tight">
+                <h1 className="text-lg sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 to-zinc-300 tracking-tight">
                   Creative Studio{" "}
-                  <span className="text-lg sm:text-3xl font-black text-amber-500 drop-shadow-lg"
+                  <span className="text-xl sm:text-3xl font-black text-amber-500 drop-shadow-lg"
                         style={{ 
                           textShadow: '0 0 12px rgba(245, 158, 11, 0.8), 0 0 24px rgba(245, 158, 11, 0.6), 0 0 36px rgba(245, 158, 11, 0.4)' 
                         }}>
