@@ -26,10 +26,15 @@ export default function DashboardClientWrapper({
   weekendSlotInfo 
 }: DashboardClientWrapperProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-background to-zinc-950 text-foreground">
-      <Toaster theme="dark" />
-
-      <header className="border-b border-border/30 backdrop-blur-md sticky top-0 z-50 relative"
+    <div className="min-h-screen bg-gradient-to-br from-black via-background to-zinc-950 text-foreground">      <Toaster 
+        theme="dark" 
+        position="bottom-center"
+        visibleToasts={1}
+        duration={2000}
+        expand={false}
+        richColors
+        closeButton
+      /><header className="border-b border-border/30 backdrop-blur-md sticky top-0 z-50 relative"
               style={{
                 background: 'linear-gradient(180deg, rgba(15,15,15,0.98) 0%, rgba(8,8,8,0.96) 50%, rgba(5,5,5,0.98) 100%)',
                 boxShadow: `
@@ -38,11 +43,10 @@ export default function DashboardClientWrapper({
                 `
               }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Left side - Logo */}
-            <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center justify-between h-16 sm:h-20">            {/* Left side - Logo */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <div
-                className="bg-gradient-to-br from-slate-300 via-zinc-200 to-slate-400 p-2 rounded-lg shadow-md border border-slate-300/50 flex items-center justify-center w-10 h-10"
+                className="bg-gradient-to-br from-slate-300 via-zinc-200 to-slate-400 p-2 rounded-lg shadow-md border border-slate-300/50 flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10"
                 style={{
                   background:
                     "linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 25%, #94a3b8 50%, #64748b 75%, #475569 100%)",
@@ -50,14 +54,13 @@ export default function DashboardClientWrapper({
                     "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.2), 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06)",
                 }}
               >
-                <span className="text-xl font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-zinc-700 via-zinc-500 to-zinc-800 tracking-tighter">
+                <span className="text-lg sm:text-xl font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-zinc-700 via-zinc-500 to-zinc-800 tracking-tighter">
                   ICU
                 </span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 to-zinc-300 tracking-tight">
+              </div>              <div>
+                <h1 className="text-sm sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 to-zinc-300 tracking-tight">
                   Creative Studio{" "}
-                  <span className="text-3xl font-black text-amber-500 drop-shadow-lg"
+                  <span className="text-lg sm:text-3xl font-black text-amber-500 drop-shadow-lg"
                         style={{ 
                           textShadow: '0 0 12px rgba(245, 158, 11, 0.8), 0 0 24px rgba(245, 158, 11, 0.6), 0 0 36px rgba(245, 158, 11, 0.4)' 
                         }}>
@@ -65,33 +68,38 @@ export default function DashboardClientWrapper({
                   </span>
                 </h1>
               </div>
-            </div>
-
-            {/* Center - Wallet Bar */}
-            <div className="absolute left-1/2 transform -translate-x-1/2">
+            </div>            {/* Center - Wallet Bar - Desktop only */}
+            <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2">
               <WalletBar />
-            </div>
-
-            {/* Right side - User info and actions */}
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <span className="text-sm text-muted-foreground hidden sm:block">Signed in: {userEmail}</span>
+            </div>            {/* Right side - User info and actions */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <span className="text-xs sm:text-sm text-muted-foreground hidden min-[1200px]:block">Signed in: {userEmail}</span>
               <ClientSignOutButton 
                 variant="outline"
                 size="sm"
-                className="border-border/50 bg-black/50 text-secondary-foreground hover:bg-secondary/20 hover:text-foreground backdrop-blur-sm"
+                className="border-border/50 bg-black/50 text-secondary-foreground hover:bg-secondary/20 hover:text-foreground backdrop-blur-sm text-xs sm:text-sm"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
+                <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Sign Out</span>
+                <span className="sm:hidden">Out</span>
               </ClientSignOutButton>
             </div>
           </div>
-        </div>
-
-        {/* Admin Panel Arrow */}
+        </div>        {/* Mobile Wallet Bar - Compact layout */}
+        <div className="lg:hidden bg-black/60 border-t border-border/30 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto px-6 py-2.5">
+            <div className="scale-[0.95] origin-center flex justify-center">
+              <WalletBar />
+            </div>
+          </div>
+        </div>{/* Admin Panel Arrow - Positioned for both mobile and desktop */}
         {isAdmin && (
           <div 
             className="absolute left-1/2 transform -translate-x-1/2 group cursor-pointer z-10"
-            style={{ top: '100%', marginTop: '-1px' }}
+            style={{ 
+              top: '100%',
+              marginTop: '-1px'
+            }}
           >
             <div className="relative">
               <div 
@@ -102,7 +110,7 @@ export default function DashboardClientWrapper({
                 }}
               >
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <Shield className="h-5 w-5 text-black transition-all duration-300 group-hover:h-6 group-hover:w-6" strokeWidth={2.2} />
+                  <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-black transition-all duration-300 group-hover:h-5 group-hover:w-5 sm:group-hover:h-6 sm:group-hover:w-6" strokeWidth={2.2} />
                 </div>
                 <div 
                   className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent"
@@ -130,10 +138,10 @@ export default function DashboardClientWrapper({
             </div>
           </div>
         )}
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">        <div className="space-y-12">
-          <ActionButtons />          <HeroSection />
+      </header>      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="space-y-8 sm:space-y-12">
+          <ActionButtons />
+          <HeroSection />
           <TimeSlotPicker bookings={allBookings} weekendSlots={weekendSlotInfo} />
           <MyBookings bookings={userBookings} />
         </div>

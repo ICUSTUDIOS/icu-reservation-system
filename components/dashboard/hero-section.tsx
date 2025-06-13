@@ -1,14 +1,45 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Clock, Calendar, AlertTriangle, MessageCircle } from "lucide-react"
 
 export default function HeroSection() {
   const [pointSystemOpen, setPointSystemOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Prevent hydration mismatch by not rendering dialog until mounted
+  if (!mounted) {
+    return (
+      <div className="text-center relative py-8 sm:py-12 md:py-16 px-4 sm:px-6 rounded-xl sm:rounded-2xl overflow-hidden border border-border/20 bg-black/60 shadow-2xl shadow-black/50 backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-accent/10 opacity-30 z-0"></div>
+        <div className="absolute inset-0 bg-[url('/placeholder.svg?height=600&width=1200')] bg-center bg-cover mix-blend-soft-light opacity-5 z-0"></div>
+
+        <div className="relative z-10 max-w-3xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-zinc-100 via-zinc-200 to-amber-300 mb-3 sm:mb-5 tracking-tight leading-tight">
+            RESERVE YOUR TIME
+          </h2>
+          <div className="h-1.5 sm:h-2 w-16 sm:w-24 bg-gradient-to-r from-primary to-accent mx-auto mb-4 sm:mb-8 rounded-full shadow-trap-glow"></div>
+
+          <p className="text-base sm:text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed">
+            Pick your date and time slot to reserve your session. Please note: late cancellations may result in losing
+            half your points.{" "}
+            <span className="text-primary hover:text-accent underline font-bold transition-colors cursor-pointer">
+              View how point system works
+            </span>
+            .
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="text-center relative py-8 sm:py-12 md:py-16 px-3 sm:px-6 rounded-xl sm:rounded-2xl overflow-hidden border border-border/20 bg-black/60 shadow-2xl shadow-black/50 backdrop-blur-sm">
+    <div className="text-center relative py-8 sm:py-12 md:py-16 px-4 sm:px-6 rounded-xl sm:rounded-2xl overflow-hidden border border-border/20 bg-black/60 shadow-2xl shadow-black/50 backdrop-blur-sm">
       <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-accent/10 opacity-30 z-0"></div>
       <div className="absolute inset-0 bg-[url('/placeholder.svg?height=600&width=1200')] bg-center bg-cover mix-blend-soft-light opacity-5 z-0"></div>
 

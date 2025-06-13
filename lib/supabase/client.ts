@@ -10,5 +10,24 @@ export const isSupabaseConfigured =
 // Create a singleton instance of the Supabase client for Client Components
 export const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+        heartbeatIntervalMs: 30000,
+        reconnectDelayMs: 1000,
+      },
+    },
+    global: {
+      headers: {
+        'x-client-info': 'icu-reservation-system',
+      },
+    },
+  }
 )

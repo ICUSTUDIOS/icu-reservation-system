@@ -1,0 +1,10 @@
+[33ma3e14a8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mstaging[m[33m, [m[1;31morigin/staging[m[33m)[m feat: add AdminInviteUser component and implement user invitation functionality
+[33m0d945e3[m feat: implement MyBookings component and update DashboardClientWrapper to use it
+[33m2420a18[m refactor: improve responsiveness and styling across components
+[33m831888e[m fix: Remove react-day-picker and vaul dependencies causing React 19 compatibility issues
+[33m48b041a[m fix: update date-fns version and clean up package.json formatting
+[33m6547925[m feat: add reauthentication and password recovery email templates
+[33m31d405b[m Implement anti-spam protection and loading states for application form
+[33m7868dec[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m Clean up backup files after successful integration
+[33m282e946[m Optimize application form for 1920x1080 viewport - Fixed info box positioning, reduced spacing, reserved error message space
+[33mdfd2884[m Save current state before restoring from stash

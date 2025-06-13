@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { supabase as supabaseClient } from '@/lib/supabase/client'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,7 @@ import { Clock, Calendar, AlertTriangle, MessageCircle, BookOpen, Scroll, AlertO
 import { toast } from "sonner"
 
 export default function ActionButtons() {
+  const [mounted, setMounted] = useState(false)
   const [studioRulesOpen, setStudioRulesOpen] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
   const [sessionCompleteOpen, setSessionCompleteOpen] = useState(false)
@@ -24,6 +25,11 @@ export default function ActionButtons() {
   })
   const [isSubmittingReport, setIsSubmittingReport] = useState(false)
   const [isSubmittingSessionComplete, setIsSubmittingSessionComplete] = useState(false)
+  
+  // Ensure component only renders on client side to prevent hydration issues
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
   const supabase = supabaseClient
   
@@ -101,19 +107,35 @@ export default function ActionButtons() {
     setIsSubmittingSessionComplete(false)
   }
 
+  // Prevent hydration issues by not rendering until mounted on client
+  if (!mounted) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-6">
+        <div className="bg-black/40 backdrop-blur-md border border-border/30 rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-2xl shadow-black/50">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {/* Loading skeleton */}
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-[44px] bg-black/50 border border-border/50 rounded animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-6" suppressHydrationWarning>
       <div className="bg-black/40 backdrop-blur-md border border-border/30 rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-2xl shadow-black/50">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-4">
           {/* Studio Rules Button */}
-          <Sheet open={studioRulesOpen} onOpenChange={setStudioRulesOpen}>
+          <Sheet key="studio-rules" open={studioRulesOpen} onOpenChange={setStudioRulesOpen}>
             <SheetTrigger asChild>
               <Button 
                 variant="outline" 
                 size="lg"
-                className="bg-black/50 border-primary/50 text-primary hover:bg-primary/10 hover:text-accent transition-all duration-300 font-semibold px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base min-h-[44px] w-full"
+                className="bg-black/50 border-primary/50 text-primary hover:bg-primary/10 hover:text-accent transition-all duration-300 font-semibold px-4 sm:px-6 py-4 sm:py-4 text-base sm:text-base min-h-[52px] sm:min-h-[44px] w-full"
               >
-                <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+                <BookOpen className="h-5 w-5 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
                 <span className="truncate">Studio Rules</span>
               </Button>
             </SheetTrigger>
@@ -429,14 +451,14 @@ export default function ActionButtons() {
           </Sheet>
 
           {/* File a Report Button */}
-          <Sheet open={reportOpen} onOpenChange={setReportOpen}>
+          <Sheet key="file-report" open={reportOpen} onOpenChange={setReportOpen}>
             <SheetTrigger asChild>
               <Button 
                 variant="outline" 
                 size="lg"
-                className="bg-black/50 border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300 hover:border-red-400/70 transition-all duration-300 font-semibold px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base min-h-[44px] w-full"
+                className="bg-black/50 border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300 hover:border-red-400/70 transition-all duration-300 font-semibold px-4 sm:px-6 py-4 sm:py-4 text-base sm:text-base min-h-[52px] sm:min-h-[44px] w-full"
               >
-                <Flag className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+                <Flag className="h-5 w-5 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
                 <span className="truncate">File a Report</span>
               </Button>
             </SheetTrigger>
@@ -621,14 +643,14 @@ export default function ActionButtons() {
           </Sheet>
 
           {/* Session Complete Button */}
-          <Sheet open={sessionCompleteOpen} onOpenChange={setSessionCompleteOpen}>
+          <Sheet key="session-complete" open={sessionCompleteOpen} onOpenChange={setSessionCompleteOpen}>
             <SheetTrigger asChild>
               <Button 
                 variant="outline" 
                 size="lg"
-                className="bg-black/50 border-green-500/50 text-green-400 hover:bg-green-500/10 hover:text-green-300 hover:border-green-400/70 transition-all duration-300 font-semibold px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base min-h-[44px] w-full"
+                className="bg-black/50 border-green-500/50 text-green-400 hover:bg-green-500/10 hover:text-green-300 hover:border-green-400/70 transition-all duration-300 font-semibold px-4 sm:px-6 py-4 sm:py-4 text-base sm:text-base min-h-[52px] sm:min-h-[44px] w-full"
               >
-                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+                <Sparkles className="h-5 w-5 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
                 <span className="truncate">Session Complete</span>
               </Button>
             </SheetTrigger>
@@ -730,9 +752,9 @@ export default function ActionButtons() {
                 });
               }
             }}
-            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold px-6 sm:px-8 py-3 sm:py-4 shadow-lg hover:shadow-xl transition-all duration-300 min-h-[44px] w-full text-sm sm:text-base"
+            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-bold px-6 sm:px-8 py-4 sm:py-4 shadow-lg hover:shadow-xl transition-all duration-300 min-h-[52px] sm:min-h-[44px] w-full text-base sm:text-base"
           >
-            <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+            <Calendar className="h-5 w-5 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
             <span className="truncate">Reserve Your Time</span>
           </Button>
         </div>
