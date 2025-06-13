@@ -19,7 +19,7 @@ interface TimeSlotPickerProps {
 }
 
 export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPickerProps) {
-  const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()))
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [selection, setSelection] = useState<{ start: string | null; end: string | null }>({
     start: null,
     end: null,
@@ -38,6 +38,8 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
 
   const bookedSlots = useMemo(() => {
     const booked = new Set<string>()
+    if (!selectedDate) return booked
+    
     const currentSelectedDateStr = format(selectedDate, "yyyy-MM-dd")
 
     console.log(`Calculating booked slots for ${currentSelectedDateStr}`)
@@ -66,10 +68,11 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
     console.log(`Booked slots for ${currentSelectedDateStr}:`, Array.from(booked))
     return booked
   }, [selectedDate, bookings])
-
   // Add past slots detection
   const pastSlots = useMemo(() => {
     const past = new Set<string>()
+    if (!selectedDate) return past
+    
     const now = new Date()
     const currentSelectedDateStr = format(selectedDate, "yyyy-MM-dd")
     const todayStr = format(now, "yyyy-MM-dd")
@@ -96,7 +99,6 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
     
     return past
   }, [selectedDate, timeSlots])
-
   useEffect(() => {
     setSelection({ start: null, end: null })
     // Clear any cached booking slot states when bookings data changes
@@ -156,6 +158,16 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
       }
     }
     
+    // NEW: Check weekend slot limits before setting end time
+    const weekendSlotsNeeded = calculateWeekendSlotsForRange(start, time)
+    if (weekendSlotsNeeded > 0 && (weekendSlots.used + weekendSlotsNeeded) > weekendSlots.max) {
+      const remaining = weekendSlots.max - weekendSlots.used
+      toast.error(
+        `Weekend slot limit exceeded! This selection needs ${weekendSlotsNeeded} weekend slots but you have only ${remaining} remaining (${weekendSlots.used}/${weekendSlots.max} used).`
+      )
+      return
+    }
+    
     // Set the end time with success feedback
     setSelection({ start: start, end: time })
     const duration = calculateDurationForRange(start, time)
@@ -163,8 +175,34 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
       duration: 4000
     })
   }
+  // Weekend validation function
+  const calculateWeekendSlotsForRange = (startTime: string, endTime: string): number => {
+    if (!selectedDate) return 0
+    
+    const startDateTime = timeStringToDate(startTime, selectedDate)
+    const endDateTime = timeStringToDate(endTime, selectedDate)
+    
+    const durationMinutes = differenceInMinutes(endDateTime, startDateTime)
+    const numberOfSlots = Math.max(1, durationMinutes / 30)
+    
+    let weekendSlots = 0
+    
+    for (let i = 0; i < numberOfSlots; i++) {
+      const current = addMinutes(startDateTime, i * 30)
+      const dayOfWeek = current.getDay()
+      const hour = current.getHours()
+
+      if ((dayOfWeek === 5 && hour >= 17) || dayOfWeek === 0 || dayOfWeek === 6) {
+        weekendSlots += 1
+      }
+    }
+    
+    return weekendSlots
+  }
 
   const calculateDurationForRange = (startTime: string, endTime: string): string => {
+    if (!selectedDate) return "30 MIN"
+    
     const start = timeStringToDate(startTime, selectedDate)
     const end = timeStringToDate(endTime, selectedDate)
     
@@ -195,9 +233,8 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
       setIsRefreshing(false)
     }
   }
-
   const handleBooking = async () => {
-    if (!selection.start || !selection.end) {
+    if (!selection.start || !selection.end || !selectedDate) {
       toast.error("Please select both start and end times.")
       return
     }
@@ -244,9 +281,8 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
     
     return calculateDurationForRange(selection.start, selection.end)
   }
-
   const calculateCost = (): { totalCost: number; weekendSlots: number; isWeekend: boolean } => {
-    if (!selection.start || !selection.end) return { totalCost: 0, weekendSlots: 0, isWeekend: false }
+    if (!selection.start || !selection.end || !selectedDate) return { totalCost: 0, weekendSlots: 0, isWeekend: false }
 
     const startTime = timeStringToDate(selection.start, selectedDate)
     const endTime = timeStringToDate(selection.end, selectedDate)
@@ -303,9 +339,10 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
 
     return { totalCost, weekendSlots, isWeekend: weekendSlots > 0 }
   }
-
   // Helper function to determine slot pricing tier
   const getSlotPricingTier = (time: string): 'weekday' | 'evening' | 'weekend' => {
+    if (!selectedDate) return 'weekday'
+    
     const slotDate = timeStringToDate(time, selectedDate)
     const dayOfWeek = slotDate.getDay() // 0=Sunday, 1=Monday, ..., 6=Saturday
     const hour = slotDate.getHours()
@@ -319,21 +356,23 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
       return 'weekday' // Mon-Thu 09:00-17:00, Fri 09:00-17:00 = 1 point
     }
   }
-
   const showBookingControls = !!(selection.start && selection.end)
   const { totalCost, weekendSlots: weekendSlotsNeeded, isWeekend } = calculateCost()
+  const weekendSlotsExceeded = isWeekend && (weekendSlots.used + weekendSlotsNeeded) > weekendSlots.max
+  const canBook = showBookingControls && !weekendSlotsExceeded
 
   return (
     <div id="time-slot-picker" className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
-      <Card className="bg-black/60 backdrop-blur-sm border-border/30 shadow-2xl shadow-black/50">
+      <Card id="select-date" className="bg-black/60 backdrop-blur-sm border-border/30 shadow-2xl shadow-black/50">
         <CardHeader className="border-b border-border/30 bg-black/40 p-3 sm:p-4 md:p-6">
           <CardTitle className="flex items-center gap-2 sm:gap-2.5 text-base sm:text-lg md:text-xl text-foreground">
             <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-            <span className="text-sm sm:text-base md:text-lg">SELECT DATE - {format(selectedDate, "MMMM yyyy").toUpperCase()}</span>
+            <span className="text-sm sm:text-base md:text-lg">
+              {selectedDate ? `SELECT DATE - ${format(selectedDate, "MMMM yyyy").toUpperCase()}` : "SELECT DATE"}
+            </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-2 sm:p-3 md:p-4 flex justify-center">
-          <CalendarUI
+        <CardContent className="p-2 sm:p-3 md:p-4 flex justify-center">          <CalendarUI
             selected={selectedDate}
             onSelect={(date) => date && setSelectedDate(startOfDay(date))}
             disabled={(date) => isBefore(date, startOfDay(new Date()))}
@@ -346,307 +385,374 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
         <CardHeader className="border-b border-border/30 bg-black/40 p-3 sm:p-4 md:p-6">
           <CardTitle className="flex items-center gap-2 sm:gap-2.5 text-base sm:text-lg md:text-xl text-foreground">
             <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-            <span className="text-sm sm:text-base md:text-lg truncate">SELECT TIME - {format(selectedDate, "MMM d, yyyy").toUpperCase()}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="ml-auto text-xs sm:text-sm p-1 sm:p-2 min-h-[32px]"
-            >
-              <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
-            </Button>
+            <span className="text-sm sm:text-base md:text-lg truncate">
+              {selectedDate ? `SELECT TIME - ${format(selectedDate, "MMM d, yyyy").toUpperCase()}` : "SELECT TIME"}
+            </span>
+            {selectedDate && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="ml-auto text-xs sm:text-sm p-1 sm:p-2 min-h-[32px]"
+              >
+                <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+              </Button>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-2 sm:p-3 md:p-4 lg:p-6 space-y-3 sm:space-y-4 md:space-y-6">
-          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-5 xl:grid-cols-6 gap-1 sm:gap-1.5 md:gap-2">
-            {timeSlots.map((time) => {
-              const isBooked = bookedSlots.has(time)
-              const isPast = pastSlots.has(time)
-              const isStart = selection.start === time
-              const isEnd = selection.end === time
-              const startIndex = selection.start ? timeSlots.indexOf(selection.start) : -1
-              const endIndex = selection.end ? timeSlots.indexOf(selection.end) : -1
-              const isInRange =
-                startIndex !== -1 &&
-                endIndex !== -1 &&
-                timeSlots.indexOf(time) >= startIndex &&
-                timeSlots.indexOf(time) < endIndex // Changed <= to < so end slot isn't highlighted as "in range"
+          {!selectedDate ? (
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <div className="bg-gradient-to-br from-blue-950/30 to-purple-950/30 rounded-full p-4 mb-4 border border-border/30">
+                <CalendarDays className="h-8 w-8 text-blue-400" />
+              </div>
+              <p className="text-foreground text-lg font-medium mb-2">Select a Day First</p>
+              <p className="text-muted-foreground text-sm max-w-sm">
+                Choose a date from the calendar on the left to view available time slots for booking.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-5 xl:grid-cols-6 gap-1 sm:gap-1.5 md:gap-2">
+                {timeSlots.map((time) => {
+                  const isBooked = bookedSlots.has(time)
+                  const isPast = pastSlots.has(time)
+                  const isStart = selection.start === time
+                  const isEnd = selection.end === time
+                  const startIndex = selection.start ? timeSlots.indexOf(selection.start) : -1
+                  const endIndex = selection.end ? timeSlots.indexOf(selection.end) : -1
+                  const isInRange = startIndex !== -1 && endIndex !== -1 &&
+                    timeSlots.indexOf(time) >= startIndex &&
+                    timeSlots.indexOf(time) < endIndex
 
-              const pricingTier = getSlotPricingTier(time)
-              const isWeekendSlot = pricingTier === 'weekend'
-              const isEveningSlot = pricingTier === 'evening'
-              const isWeekdaySlot = pricingTier === 'weekday'
+                  const pricingTier = getSlotPricingTier(time)
+                  const isWeekendSlot = pricingTier === 'weekend'
+                  const isEveningSlot = pricingTier === 'evening'
+                  const isWeekdaySlot = pricingTier === 'weekday'
 
-              return (
-                <Button
-                  key={time}
-                  variant="outline"
-                  onClick={() => handleSlotClick(time)}
-                  disabled={isBooked || isPast}
-                  className={cn(
-                    "h-10 sm:h-11 md:h-12 lg:h-10 xl:h-11 text-[10px] sm:text-xs font-medium transition-all duration-150 ease-in-out p-1 sm:p-2 backdrop-blur-sm relative min-h-[40px] touch-manipulation",
-                    // Base pricing tier colors (when not booked/selected/past)
-                    !isBooked && !isPast && !isStart && !isEnd && !isInRange && isWeekendSlot && 
-                      "border-orange-500/60 bg-gradient-to-b from-orange-900/40 to-orange-800/30 text-orange-100 hover:bg-gradient-to-b hover:from-orange-800/50 hover:to-orange-700/40 hover:border-orange-400/70",
-                    !isBooked && !isPast && !isStart && !isEnd && !isInRange && isEveningSlot && 
-                      "border-yellow-500/60 bg-gradient-to-b from-yellow-900/40 to-yellow-800/30 text-yellow-100 hover:bg-gradient-to-b hover:from-yellow-800/50 hover:to-yellow-700/40 hover:border-yellow-400/70",
-                    !isBooked && !isPast && !isStart && !isEnd && !isInRange && isWeekdaySlot && 
-                      "border-blue-500/50 bg-gradient-to-b from-blue-900/30 to-blue-800/20 text-blue-100 hover:bg-gradient-to-b hover:from-blue-800/40 hover:to-blue-700/30 hover:border-blue-400/60",
-                    // Booked state
-                    isBooked && "bg-muted/20 text-muted-foreground cursor-not-allowed hover:bg-muted/20 ring-0 border-muted/30",
-                    // Past state
-                    isPast && "bg-red-950/20 text-red-400/60 cursor-not-allowed hover:bg-red-950/20 ring-0 border-red-800/30 opacity-50",
-                    // Selection states (override pricing colors)
-                    (isStart || isEnd || isInRange) &&
-                      !isBooked && !isPast &&
-                      "text-white ring-offset-background ring-offset-2 shadow-lg",
-                    isStart &&
-                      !isBooked && !isPast &&
-                      "bg-gradient-to-br from-green-600 to-green-500 hover:from-green-500/90 hover:to-green-400/90 border-transparent ring-2 ring-green-400 shadow-lg shadow-green-500/20",
-                    isEnd &&
-                      !isBooked && !isPast &&
-                      "bg-gradient-to-br from-red-600 to-red-500 hover:from-red-500/90 hover:to-red-400/90 border-transparent ring-2 ring-red-400 shadow-lg shadow-red-500/20",
-                    isInRange &&
-                      !isStart &&
-                      !isEnd &&
-                      !isBooked && !isPast &&
-                      "bg-gradient-to-r from-blue-600/70 via-blue-500/50 to-blue-600/70 border-blue-400/60 hover:from-blue-500/80 hover:to-blue-500/80 text-white shadow-md shadow-blue-500/20",
-                  )}
-                >
-                  <div className="flex flex-col items-center gap-0 sm:gap-0.5">
-                    <span className="leading-none text-[9px] sm:text-[10px] md:text-xs">
-                      {format(timeStringToDate(time, new Date()), "h:mm a")}
-                    </span>
-                    {isPast && (
-                      <span className="text-[7px] sm:text-[8px] leading-none font-bold text-red-400/60">
-                        PAST
-                      </span>
-                    )}
-                    {isStart && !isBooked && !isPast && (
-                      <span className="text-[7px] sm:text-[8px] leading-none font-bold text-green-100">
-                        START
-                      </span>
-                    )}
-                    {isEnd && !isBooked && !isPast && (
-                      <span className="text-[7px] sm:text-[8px] leading-none font-bold text-red-100">
-                        END
-                      </span>
-                    )}
-                  </div>
-                </Button>
-              )
-            })}
-          </div>
+                  return (
+                    <Button
+                      key={time}
+                      variant="outline"
+                      onClick={() => handleSlotClick(time)}
+                      disabled={isBooked || isPast}
+                      className={cn(
+                        "h-10 sm:h-11 md:h-12 lg:h-10 xl:h-11 text-[10px] sm:text-xs font-medium transition-all duration-150 ease-in-out p-1 sm:p-2 backdrop-blur-sm relative min-h-[40px] touch-manipulation",
+                        // Base pricing tier colors
+                        !isBooked && !isPast && !isStart && !isEnd && !isInRange && isWeekendSlot && 
+                          "border-orange-500/60 bg-gradient-to-b from-orange-900/40 to-orange-800/30 text-orange-100 hover:bg-gradient-to-b hover:from-orange-800/50 hover:to-orange-700/40 hover:border-orange-400/70",
+                        !isBooked && !isPast && !isStart && !isEnd && !isInRange && isEveningSlot && 
+                          "border-yellow-500/60 bg-gradient-to-b from-yellow-900/40 to-yellow-800/30 text-yellow-100 hover:bg-gradient-to-b hover:from-yellow-800/50 hover:to-yellow-700/40 hover:border-yellow-400/70",
+                        !isBooked && !isPast && !isStart && !isEnd && !isInRange && isWeekdaySlot && 
+                          "border-blue-500/50 bg-gradient-to-b from-blue-900/30 to-blue-800/20 text-blue-100 hover:bg-gradient-to-b hover:from-blue-800/40 hover:to-blue-700/30 hover:border-blue-400/60",
+                        // States
+                        isBooked && "bg-muted/20 text-muted-foreground cursor-not-allowed hover:bg-muted/20 ring-0 border-muted/30",
+                        isPast && "bg-red-950/20 text-red-400/60 cursor-not-allowed hover:bg-red-950/20 ring-0 border-red-800/30 opacity-50",
+                        (isStart || isEnd || isInRange) &&
+                          !isBooked && !isPast &&
+                          "text-white ring-offset-background ring-offset-2 shadow-lg",
+                        isStart &&
+                          !isBooked && !isPast &&
+                          "bg-gradient-to-br from-green-600 to-green-500 hover:from-green-500/90 hover:to-green-400/90 border-transparent ring-2 ring-green-400 shadow-lg shadow-green-500/20",
+                        isEnd &&
+                          !isBooked && !isPast &&
+                          "bg-gradient-to-br from-red-600 to-red-500 hover:from-red-500/90 hover:to-red-400/90 border-transparent ring-2 ring-red-400 shadow-lg shadow-red-500/20",
+                        isInRange &&
+                          !isStart &&
+                          !isEnd &&
+                          !isBooked && !isPast &&
+                          "bg-gradient-to-r from-blue-600/70 via-blue-500/50 to-blue-600/70 border-blue-400/60 hover:from-blue-500/80 hover:to-blue-500/80 text-white shadow-md shadow-blue-500/20",
+                      )}
+                    >
+                      <div className="flex flex-col items-center gap-0 sm:gap-0.5">
+                        <span className="leading-none text-[9px] sm:text-[10px] md:text-xs">
+                          {format(timeStringToDate(time, selectedDate), "h:mm a")}
+                        </span>
+                        {isPast && (
+                          <span className="text-[7px] sm:text-[8px] leading-none font-bold text-red-400/60">
+                            PAST
+                          </span>
+                        )}
+                        {isStart && !isBooked && !isPast && (
+                          <span className="text-[7px] sm:text-[8px] leading-none font-bold text-green-100">
+                            START
+                          </span>
+                        )}
+                        {isEnd && !isBooked && !isPast && (
+                          <span className="text-[7px] sm:text-[8px] leading-none font-bold text-red-100">
+                            END
+                          </span>
+                        )}
+                      </div>
+                    </Button>
+                  )
+                })}          </div>
 
           {/* Pricing Legend */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 py-2 sm:py-3 px-2 sm:px-4 bg-black/30 rounded-lg border border-border/30">
-            <div className="flex items-center gap-1 sm:gap-2">
-              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded border border-blue-500/50 bg-gradient-to-b from-blue-900/40 to-blue-800/30"></div>
-              <span className="text-[10px] sm:text-xs text-blue-200/90 font-medium">Weekday (1pt)</span>
-            </div>
-            <div className="flex items-center gap-1 sm:gap-2">
-              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded border border-yellow-500/60 bg-gradient-to-b from-yellow-900/40 to-yellow-800/30"></div>
-              <span className="text-[10px] sm:text-xs text-yellow-200/90 font-medium">Evening (2pt)</span>
-            </div>
-            <div className="flex items-center gap-1 sm:gap-2">
-              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded border border-orange-500/60 bg-gradient-to-b from-orange-900/40 to-orange-800/30"></div>
-              <span className="text-[10px] sm:text-xs text-orange-200/90 font-medium">Weekend (3pt)</span>
-            </div>
-            <div className="flex items-center gap-1 sm:gap-2">
-              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded border border-muted/30 bg-muted/20"></div>
-              <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">Reserved</span>
-            </div>
-            <div className="flex items-center gap-1 sm:gap-2">
-              <div className="w-3 h-3 sm:w-4 sm:h-4 rounded border border-red-800/30 bg-red-950/20 opacity-50"></div>
-              <span className="text-[10px] sm:text-xs text-red-400/60 font-medium">Past</span>
-            </div>
-          </div>
-
-          {/* Selection Instructions */}
-          <div className="flex items-center justify-center py-2 sm:py-3 px-2 sm:px-4 bg-gradient-to-r from-blue-950/30 to-purple-950/30 rounded-lg border border-border/30">
-            <div className="text-center">
-              {!selection.start ? (
-                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-                  <span className="text-xs sm:text-sm font-medium text-foreground">Click on a time slot to set your start time</span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 rounded border border-blue-500/50 bg-gradient-to-b from-blue-900/40 to-blue-800/30"></div>
+                  <span className="text-[10px] sm:text-xs text-blue-200/90 font-medium">Weekday (1pt)</span>
                 </div>
-              ) : !selection.end ? (
-                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-                  <span className="text-xs sm:text-sm font-medium text-foreground text-center">
-                    Start: {format(timeStringToDate(selection.start, new Date()), "h:mm a")} - Now click on an end time
-                  </span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 rounded border border-yellow-500/60 bg-gradient-to-b from-yellow-900/40 to-yellow-800/30"></div>
+                  <span className="text-[10px] sm:text-xs text-yellow-200/90 font-medium">Evening (2pt)</span>
                 </div>
-              ) : (
-                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
-                  <span className="text-xs sm:text-sm font-medium text-foreground">
-                    Range selected - Ready to book!
-                  </span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 rounded border border-orange-500/60 bg-gradient-to-b from-orange-900/40 to-orange-800/30"></div>
+                  <span className="text-[10px] sm:text-xs text-orange-200/90 font-medium">Weekend (3pt)</span>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Booking System Explanation */}
-          <div className="bg-gradient-to-r from-slate-950/50 to-slate-900/50 p-2 sm:p-3 rounded-lg border border-border/30">
-            <div className="flex items-start gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-400 mt-1 sm:mt-2 flex-shrink-0"></div>
-              <div className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                <span className="font-medium text-slate-200">How it works:</span> When you book 10:30 to 11:30, you reserve the studio from 10:30 AM until 11:30 AM. 
-                The 11:30 slot remains available for others to book from 11:30 onwards.
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 rounded border border-muted/30 bg-muted/20"></div>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">Reserved</span>
+                </div>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 rounded border border-red-800/30 bg-red-950/20 opacity-50"></div>
+                  <span className="text-[10px] sm:text-xs text-red-400/60 font-medium">Past</span>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="h-auto min-h-[120px] sm:min-h-[140px] md:min-h-[150px] pt-3 sm:pt-4 md:pt-6 border-t border-border/30 flex flex-col justify-between">
-            {selection.start ? (
-              <>
-                <div className="bg-black/40 p-2 sm:p-3 md:p-4 rounded-lg mb-2 sm:mb-3 md:mb-4 border border-border/30 backdrop-blur-sm">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <div className="mb-1 sm:mb-0 w-full sm:w-auto">
-                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">SELECTED:</p>
-                      <div className="text-sm sm:text-md md:text-lg font-bold flex items-center gap-1 sm:gap-2 mt-0.5 text-foreground">
-                        <span>{format(timeStringToDate(selection.start, new Date()), "h:mm a")}</span>
-                        {selection.end && (
-                          <>
-                            <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
-                            <span>{format(timeStringToDate(selection.end, new Date()), "h:mm a")}</span>
-                          </>
-                        )}
+              {/* Booking Controls */}
+              {showBookingControls && (
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="bg-black/40 p-3 sm:p-4 rounded-lg border border-border/30">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-xs text-muted-foreground">SELECTED RANGE:</p>
+                        <p className="text-sm font-bold">
+                          {format(timeStringToDate(selection.start!, selectedDate), "h:mm a")} - {format(timeStringToDate(selection.end!, selectedDate), "h:mm a")}
+                        </p>
+                        <p className="text-xs text-accent">{calculateDuration()}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">COST:</p>
+                        <p className="text-lg font-bold text-primary">{totalCost} points</p>
                       </div>
                     </div>
-                    {selection.end && (
-                      <div className="text-left sm:text-right w-full sm:w-auto">
-                        <p className="text-xs sm:text-sm font-medium text-muted-foreground">DURATION:</p>
-                        <p className="text-sm sm:text-md md:text-lg font-bold text-accent mt-0.5 trap-text-glow">
-                          {calculateDuration()}
-                        </p>
-                      </div>
-                    )}
                   </div>
-                </div>
-                <div className="mt-auto space-y-2 sm:space-y-3">
-                  {/* Check if weekend booking exceeds limit */}
-                  {(() => {
-                    const exceedsWeekendLimit = isWeekend && (weekendSlots.used + weekendSlotsNeeded) > weekendSlots.max;
-                    
-                    return (
-                      <Button
-                        onClick={handleBooking}
-                        disabled={isBooking || !showBookingControls || exceedsWeekendLimit}
-                        className={cn(
-                          "w-full h-12 sm:h-14 text-sm sm:text-base font-semibold transition-all duration-300 ease-in-out transform active:scale-95 touch-manipulation",
-                          exceedsWeekendLimit
-                            ? "bg-gradient-to-r from-red-600 to-red-500 text-red-100 opacity-60 cursor-not-allowed border border-red-400/50"
-                            : showBookingControls
-                            ? "bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 opacity-100 shadow-trap-glow hover:shadow-trap-glow-strong text-primary-foreground"
-                            : "bg-muted/30 text-muted-foreground opacity-60 cursor-not-allowed",
-                        )}
-                      >
-                        {isBooking 
-                          ? "PROCESSING..." 
-                          : exceedsWeekendLimit 
-                          ? "WEEKEND LIMIT EXCEEDED" 
-                          : "LOCK IN SESSION"
-                        }{" "}
-                        {!isBooking && !exceedsWeekendLimit && <Sparkles className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />}
-                        {exceedsWeekendLimit && <span className="ml-2">⚠️</span>}
-                      </Button>
-                    );
-                  })()}
+
+                  {weekendSlotsExceeded && (
+                    <div className="bg-red-950/30 border border-red-600/40 rounded-lg p-3 text-center">
+                      <p className="text-red-400 text-sm font-medium">
+                        ⚠️ Weekend slot limit exceeded!
+                      </p>
+                      <p className="text-red-300/80 text-xs mt-1">
+                        This selection needs {weekendSlotsNeeded} weekend slots but you have only {weekendSlots.max - weekendSlots.used} remaining.
+                      </p>
+                    </div>
+                  )}
+
+                  <Button
+                    onClick={handleBooking}
+                    disabled={isBooking || !canBook}
+                    className={cn(
+                      "w-full h-12 text-base font-semibold transition-all duration-300",
+                      canBook
+                        ? "bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                        : "bg-muted/30 text-muted-foreground opacity-60 cursor-not-allowed",
+                    )}
+                  >
+                    {isBooking ? "PROCESSING..." : weekendSlotsExceeded ? "WEEKEND LIMIT EXCEEDED" : "LOCK IN SESSION"}
+                    {!isBooking && canBook && <Sparkles className="ml-2 h-4 w-4" />}
+                  </Button>
+
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="w-full text-muted-foreground hover:text-foreground hover:bg-black/30 transition-colors h-10 sm:h-12 text-xs sm:text-sm touch-manipulation"
-                    onClick={() => {
-                      setSelection({ start: null, end: null })
-                      toast.info("Selection cleared")
-                    }}
-                  >
-                    <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                    className="w-full text-muted-foreground hover:text-foreground"
+                    onClick={() => setSelection({ start: null, end: null })}
+                  >                    <X className="h-4 w-4 mr-2" />
                     Clear Selection
                   </Button>
                 </div>
-                <div className="mt-2 sm:mt-3 md:mt-4 pt-2 sm:pt-3 md:pt-4 border-t border-border/30"
-                >
-                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">COST BREAKDOWN:</p>
-                  <div className="flex flex-col space-y-1 sm:space-y-2 mt-1 sm:mt-2">
-                    <div className="flex justify-between items-center">
-                      <p className="text-xs sm:text-sm font-medium text-foreground">Points from your wallet:</p>
-                      <p className="text-md sm:text-lg font-bold text-accent">
-                        {totalCost} {totalCost === 1 ? "point" : "points"}
-                      </p>
+              )}
+
+              {/* Selection Instructions */}
+              <div className="flex items-center justify-center py-2 sm:py-3 px-2 sm:px-4 bg-gradient-to-r from-blue-950/30 to-purple-950/30 rounded-lg border border-border/30">
+                <div className="text-center">
+                  {!selection.start ? (
+                    <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                      <span className="text-xs sm:text-sm font-medium text-foreground">Click on a time slot to set your start time</span>
                     </div>
-                    {isWeekend && (
-                      <>
-                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2 sm:p-3 mt-1 sm:mt-2">
-                          <div className="flex justify-between items-center mb-1">
-                            <p className="text-xs font-medium text-amber-400">Weekend Rate Applied:</p>
-                            <p className="text-xs sm:text-sm font-medium text-amber-300">
-                              {weekendSlotsNeeded} slot{weekendSlotsNeeded > 1 ? "s" : ""} × 3 points each
-                            </p>
-                          </div>
-                          <div className="flex justify-between items-center mt-1 sm:mt-2 pt-1 sm:pt-2 border-t border-amber-400/20">
-                            <p className="text-xs font-medium text-amber-400">Weekend Slots:</p>
-                            <p className={cn(
-                              "text-xs sm:text-sm font-medium",
-                              (weekendSlots.used + weekendSlotsNeeded) > weekendSlots.max 
-                                ? "text-red-400" 
-                                : (weekendSlots.used + weekendSlotsNeeded) === weekendSlots.max
-                                ? "text-orange-400"
-                                : "text-amber-300"
-                            )}>
-                              {weekendSlots.used + weekendSlotsNeeded}/{weekendSlots.max} used
-                            </p>
-                          </div>
-                          <div className="mt-2 sm:mt-3 pt-1 sm:pt-2 border-t border-amber-400/20">
-                            <p className="text-xs text-amber-100/80 leading-relaxed">
-                              This booking uses your weekend slot limit + points from your main wallet.
-                            </p>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                    <div className="text-xs text-muted-foreground pt-1 space-y-1">
-                      <p><strong>Rate:</strong> Weekdays 1pt • Evenings 2pt • Weekend (Fri 5pm+, Sat-Sun) 3pt per 30min</p>
-                      {isWeekend && (
-                        <p className="text-amber-300/80">
-                          <strong>Note:</strong> Weekend bookings also count toward your weekly weekend limit.
-                        </p>
-                      )}
+                  ) : !selection.end ? (
+                    <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                      <span className="text-xs sm:text-sm font-medium text-foreground text-center">
+                        Start: {format(timeStringToDate(selection.start, new Date()), "h:mm a")} - Now click on an end time
+                      </span>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
+                      <span className="text-xs sm:text-sm font-medium text-foreground">
+                        Range selected - Ready to book!
+                      </span>
+                    </div>
+                  )}
                 </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center py-6 sm:py-8">
-                <div className="bg-gradient-to-br from-blue-950/30 to-purple-950/30 rounded-full p-3 sm:p-4 mb-3 sm:mb-4 border border-border/30">
-                  <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" />
-                </div>
-                <p className="text-foreground text-xs sm:text-sm font-medium mb-1">Ready to Book Your Session</p>
-                <p className="text-muted-foreground text-xs mb-2 sm:mb-3">Choose your start and end times from the grid above</p>
-                <div className="flex items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded border bg-green-600/80"></div>
-                    <span>Start</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded border bg-blue-600/80"></div>
-                    <span>Range</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded border bg-red-600/80"></div>
-                    <span>End</span>
+              </div>
+
+              {/* Booking System Explanation */}
+              <div className="bg-gradient-to-r from-slate-950/50 to-slate-900/50 p-2 sm:p-3 rounded-lg border border-border/30">
+                <div className="flex items-start gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-400 mt-1 sm:mt-2 flex-shrink-0"></div>
+                  <div className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    <span className="font-medium text-slate-200">How it works:</span> When you book 10:30 to 11:30, you reserve the studio from 10:30 AM until 11:30 AM. 
+                    The 11:30 slot remains available for others to book from 11:30 onwards.
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+
+              {/* Booking Overview */}
+              <div data-booking-overview className="h-auto min-h-[120px] sm:min-h-[140px] md:min-h-[150px] pt-3 sm:pt-4 md:pt-6 border-t border-border/30 flex flex-col justify-between">
+                {selection.start ? (
+                  <>
+                    <div className="bg-black/40 p-2 sm:p-3 md:p-4 rounded-lg mb-2 sm:mb-3 md:mb-4 border border-border/30 backdrop-blur-sm">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div className="mb-1 sm:mb-0 w-full sm:w-auto">
+                          <p className="text-xs sm:text-sm font-medium text-muted-foreground">SELECTED:</p>
+                          <div className="text-sm sm:text-md md:text-lg font-bold flex items-center gap-1 sm:gap-2 mt-0.5 text-foreground">
+                            <span>{format(timeStringToDate(selection.start, new Date()), "h:mm a")}</span>
+                            {selection.end && (
+                              <>
+                                <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                                <span>{format(timeStringToDate(selection.end, new Date()), "h:mm a")}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        {selection.end && (
+                          <div className="text-left sm:text-right w-full sm:w-auto">
+                            <p className="text-xs sm:text-sm font-medium text-muted-foreground">DURATION:</p>
+                            <p className="text-sm sm:text-md md:text-lg font-bold text-accent mt-0.5 trap-text-glow">
+                              {calculateDuration()}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-auto space-y-2 sm:space-y-3">
+                      {/* Check if weekend booking exceeds limit */}
+                      {(() => {
+                        const exceedsWeekendLimit = isWeekend && (weekendSlots.used + weekendSlotsNeeded) > weekendSlots.max;
+                        
+                        return (
+                          <Button
+                            onClick={handleBooking}
+                            disabled={isBooking || !showBookingControls || exceedsWeekendLimit}
+                            className={cn(
+                              "w-full h-12 sm:h-14 text-sm sm:text-base font-semibold transition-all duration-300 ease-in-out transform active:scale-95 touch-manipulation",
+                              exceedsWeekendLimit
+                                ? "bg-gradient-to-r from-red-600 to-red-500 text-red-100 opacity-60 cursor-not-allowed border border-red-400/50"
+                                : showBookingControls
+                                ? "bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 opacity-100 shadow-trap-glow hover:shadow-trap-glow-strong text-primary-foreground"
+                                : "bg-muted/30 text-muted-foreground opacity-60 cursor-not-allowed",
+                            )}
+                          >
+                            {isBooking 
+                              ? "PROCESSING..." 
+                              : exceedsWeekendLimit 
+                              ? "WEEKEND LIMIT EXCEEDED" 
+                              : "LOCK IN SESSION"
+                            }{" "}
+                            {!isBooking && !exceedsWeekendLimit && <Sparkles className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />}
+                            {exceedsWeekendLimit && <span className="ml-2">⚠️</span>}
+                          </Button>
+                        );
+                      })()}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full text-muted-foreground hover:text-foreground hover:bg-black/30 transition-colors h-10 sm:h-12 text-xs sm:text-sm touch-manipulation"
+                        onClick={() => {
+                          setSelection({ start: null, end: null })
+                          toast.info("Selection cleared")
+                        }}
+                      >
+                        <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        Clear Selection
+                      </Button>
+                    </div>
+                    <div className="mt-2 sm:mt-3 md:mt-4 pt-2 sm:pt-3 md:pt-4 border-t border-border/30">
+                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">COST BREAKDOWN:</p>
+                      <div className="flex flex-col space-y-1 sm:space-y-2 mt-1 sm:mt-2">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs sm:text-sm font-medium text-foreground">Points from your wallet:</p>
+                          <p className="text-md sm:text-lg font-bold text-accent">
+                            {totalCost} {totalCost === 1 ? "point" : "points"}
+                          </p>
+                        </div>
+                        {isWeekend && (
+                          <>
+                            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2 sm:p-3 mt-1 sm:mt-2">
+                              <div className="flex justify-between items-center mb-1">
+                                <p className="text-xs font-medium text-amber-400">Weekend Rate Applied:</p>
+                                <p className="text-xs sm:text-sm font-medium text-amber-300">
+                                  {weekendSlotsNeeded} slot{weekendSlotsNeeded > 1 ? "s" : ""} × 3 points each
+                                </p>
+                              </div>
+                              <div className="flex justify-between items-center mt-1 sm:mt-2 pt-1 sm:pt-2 border-t border-amber-400/20">
+                                <p className="text-xs font-medium text-amber-400">Weekend Slots:</p>
+                                <p className={cn(
+                                  "text-xs sm:text-sm font-medium",
+                                  (weekendSlots.used + weekendSlotsNeeded) > weekendSlots.max 
+                                    ? "text-red-400" 
+                                    : (weekendSlots.used + weekendSlotsNeeded) === weekendSlots.max
+                                    ? "text-orange-400"
+                                    : "text-amber-300"
+                                )}>
+                                  {weekendSlots.used + weekendSlotsNeeded}/{weekendSlots.max} used
+                                </p>
+                              </div>
+                              <div className="mt-2 sm:mt-3 pt-1 sm:pt-2 border-t border-amber-400/20">
+                                <p className="text-xs text-amber-100/80 leading-relaxed">
+                                  This booking uses your weekend slot limit + points from your main wallet.
+                                </p>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        <div className="text-xs text-muted-foreground pt-1 space-y-1">
+                          <p><strong>Rate:</strong> Weekdays 1pt • Evenings 2pt • Weekend (Fri 5pm+, Sat-Sun) 3pt per 30min</p>
+                          {isWeekend && (
+                            <p className="text-amber-300/80">
+                              <strong>Note:</strong> Weekend bookings also count toward your weekly weekend limit.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-center py-6 sm:py-8">
+                    <div className="bg-gradient-to-br from-blue-950/30 to-purple-950/30 rounded-full p-3 sm:p-4 mb-3 sm:mb-4 border border-border/30">
+                      <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" />
+                    </div>
+                    <p className="text-foreground text-xs sm:text-sm font-medium mb-1">Ready to Book Your Session</p>
+                    <p className="text-muted-foreground text-xs mb-2 sm:mb-3">Choose your start and end times from the grid above</p>
+                    <div className="flex items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded border bg-green-600/80"></div>
+                        <span>Start</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded border bg-blue-600/80"></div>
+                        <span>Range</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded border bg-red-600/80"></div>
+                        <span>End</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </CardContent>
-      </Card>
-    </div>
+      </Card>    </div>
   )
 }

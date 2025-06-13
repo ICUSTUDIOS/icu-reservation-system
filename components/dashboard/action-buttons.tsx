@@ -746,9 +746,14 @@ export default function ActionButtons() {
             onClick={() => {
               const selectDate = document.getElementById('select-date');
               if (selectDate) {
-                selectDate.scrollIntoView({ 
-                  behavior: 'smooth',
-                  block: 'start'
+                // Get the element's position and scroll with offset to show header fully
+                const elementRect = selectDate.getBoundingClientRect();
+                const absoluteElementTop = elementRect.top + window.pageYOffset;
+                const offset = 100; // Adjust this value to show more of the header
+                
+                window.scrollTo({
+                  top: absoluteElementTop - offset,
+                  behavior: 'smooth'
                 });
               }
             }}
