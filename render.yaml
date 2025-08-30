@@ -1,7 +1,7 @@
 # Render Blueprint Configuration for ICU Reservation System
 databases:
   - name: icu-reservation-db
-    plan: standard
+    plan: free # Start with free tier, upgrade as needed
     databaseName: icu_reservation
     user: icu_admin
     region: oregon
@@ -11,10 +11,10 @@ services:
   - type: web
     name: icu-reservation-system
     runtime: node
-    plan: standard
+    plan: free # Start with free tier
     region: oregon
     buildCommand: npm ci && npm run build
-    startCommand: npm run start
+    startCommand: chmod +x scripts/start-render.sh && ./scripts/start-render.sh
     healthCheckPath: /api/health
     
     envVars:
