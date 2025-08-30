@@ -10,9 +10,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p ${PORT:-3000}",
-    "lint": "next lint",
-    "migrate": "node scripts/migrate.js",
-    "health": "curl http://localhost:${PORT:-3000}/api/health"
+    "lint": "next lint"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
