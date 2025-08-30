@@ -371,18 +371,27 @@ export default function TimeSlotPicker({ bookings, weekendSlots }: TimeSlotPicke
               {selectedDate ? `SELECT DATE - ${format(selectedDate, "MMMM yyyy").toUpperCase()}` : "SELECT DATE"}
             </span>
           </CardTitle>
-        </CardHeader>
-        <CardContent className="p-2 sm:p-3 md:p-4 flex justify-center">          <CalendarUI
+        </CardHeader>        <CardContent className="p-2 sm:p-3 md:p-4 flex justify-center">
+          <CalendarUI
             selected={selectedDate}
-            onSelect={(date) => date && setSelectedDate(startOfDay(date))}
+            onSelect={(date) => {
+              if (date) {
+                setSelectedDate(startOfDay(date))
+                // Auto-scroll to time selection on mobile/small screens
+                setTimeout(() => {
+                  const timeSection = document.querySelector('[data-time-section]')
+                  if (timeSection) {
+                    timeSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }
+                }, 100)
+              }
+            }}
             disabled={(date) => isBefore(date, startOfDay(new Date()))}
             className="rounded-md w-full"
           />
         </CardContent>
-      </Card>
-
-      <Card className="bg-black/60 backdrop-blur-sm border-border/30 shadow-2xl shadow-black/50">
-        <CardHeader className="border-b border-border/30 bg-black/40 p-3 sm:p-4 md:p-6">
+      </Card>      <Card className="bg-black/60 backdrop-blur-sm border-border/30 shadow-2xl shadow-black/50">
+        <CardHeader data-time-section className="border-b border-border/30 bg-black/40 p-3 sm:p-4 md:p-6">
           <CardTitle className="flex items-center gap-2 sm:gap-2.5 text-base sm:text-lg md:text-xl text-foreground">
             <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
             <span className="text-sm sm:text-base md:text-lg truncate">

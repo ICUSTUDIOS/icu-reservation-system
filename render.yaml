@@ -1,0 +1,144 @@
+# Render Blueprint Configuration for ICU Reservation System
+databases:
+  - name: icu-reservation-db
+    plan: standard
+    databaseName: icu_reservation
+    user: icu_admin
+    region: oregon
+    postgresMajorVersion: 15
+
+services:
+  - type: web
+    name: icu-reservation-system
+    runtime: node
+    plan: standard
+    region: oregon
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    
+    envVars:
+      # Node environment
+      - key: NODE_ENV
+        value: production
+      
+      # Next.js configuration
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      
+      # Database connection (auto-generated from database)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: icu-reservation-db
+          property: connectionString
+      
+      # Supabase configuration (to be migrated)
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      
+      # New Render-specific configs
+      - key: POSTGRES_PRISMA_URL
+        fromDatabase:
+          name: icu-reservation-db
+          property: connectionString
+      
+      - key: POSTGRES_URL_NON_POOLING
+        fromDatabase:
+          name: icu-reservation-db
+          property: connectionString
+      
+      # Authentication secrets
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      
+      - key: JWT_SECRET
+        generateValue: true
+      
+      # Email configuration (optional)
+      - key: EMAIL_SERVER_HOST
+        sync: false
+      
+      - key: EMAIL_SERVER_PORT
+        value: "587"
+      
+      - key: EMAIL_SERVER_USER
+        sync: false
+      
+      - key: EMAIL_SERVER_PASSWORD
+        sync: false
+      
+      - key: EMAIL_FROM
+        value: noreply@icu-reservation.com
+    
+    # Auto-deploy configuration
+    autoDeploy: true
+    
+    # Build and runtime settings
+    buildFilter:
+      paths:
+        - "**"
+      ignoredPaths:
+        - "README.md"
+        - ".github/**"
+        - "docs/**"
+        - "*.log"
+    
+    # Scaling configuration
+    scaling:
+      minInstances: 1
+      maxInstances: 10
+      targetMemoryPercent: 80
+      targetCPUPercent: 80
+
+  # Background worker for scheduled tasks (optional)
+  - type: worker
+    name: icu-scheduler
+    runtime: node
+    plan: starter
+    region: oregon
+    buildCommand: npm ci
+    startCommand: node scripts/scheduler.js
+    
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: icu-reservation-db
+          property: connectionString
+      
+      - key: NODE_ENV
+        value: production
+    
+    # Cron jobs for scheduled tasks
+    schedule:
+      - name: monthly-points-refresh
+        command: node scripts/monthly-refresh.js
+        schedule: "0 0 1 * *" # Run at midnight on the 1st of each month
+      
+      - name: weekly-slot-reset
+        command: node scripts/weekly-reset.js
+        schedule: "0 0 * * 1" # Run at midnight every Monday
+      
+      - name: daily-cleanup
+        command: node scripts/daily-cleanup.js
+        schedule: "0 3 * * *" # Run at 3 AM daily
+
+# Static site configuration (if needed)
+staticSites:
+  - type: static
+    name: icu-docs
+    buildCommand: npm run build-docs
+    staticPublishPath: ./docs/build
+    pullRequestPreviewsEnabled: true
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
