@@ -315,6 +315,36 @@ refactor: optimize database queries
 - UI components: `/components/ui/`
 - Hooks: `/hooks/`
 
+## Available Tools & CLI Access
+
+### ✅ Already Available (No MCP Setup Needed):
+- **GitHub CLI (`gh`)**: Full access to GitHub operations
+  - Create PRs: `gh pr create --title "Title" --body "Description"`
+  - Manage issues: `gh issue create`, `gh issue list`
+  - Create releases: `gh release create`
+  - View PR status: `gh pr status`
+  - Clone repos: `gh repo clone owner/repo`
+- **Git**: All version control operations (add, commit, push, pull, etc.)
+- **File System**: Direct read/write access to all project files
+- **Shell/Bash**: Execute any command (npm, node, curl, psql, etc.)
+- **Build & Deploy**: Can run build scripts and trigger deployments
+
+### 🚀 How to Deploy (No MCP Needed):
+```bash
+# Option 1: Automatic via GitHub push
+git add -A
+git commit -m "feat: your changes"
+git push origin main  # Render auto-deploys from GitHub
+
+# Option 2: Using GitHub CLI for PRs
+gh pr create --title "Deploy: Feature X" --body "Description"
+```
+
+### 📝 For Database Operations:
+- Create migration files in `/supabase/migrations/`
+- Use Supabase dashboard or CLI for execution
+- Can generate SQL but cannot execute directly without MCP
+
 ## Important Notes
 
 ### Current Limitations

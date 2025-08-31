@@ -1,0 +1,38 @@
+{
+  "services": [
+    {
+      "type": "web",
+      "name": "icu-reservation-system",
+      "repo": "https://github.com/relaxshadow/icu_reservation_system",
+      "autoDeploy": "yes",
+      "branch": "main",
+      "buildCommand": "npm ci && npm run build",
+      "startCommand": "npm run start",
+      "envVars": [
+        {
+          "key": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "key": "PORT",
+          "value": "10000"
+        },
+        {
+          "key": "NEXT_PUBLIC_SUPABASE_URL",
+          "value": "https://jkcsowmshwhpeejwfmph.supabase.co"
+        },
+        {
+          "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprY3Nvd21zaHdocGVlandmbXBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0NzI0NTEsImV4cCI6MjA2NTA0ODQ1MX0._6tNiSIRC46W5_0ZIV_EXk-HD1J_ZUa557V4yhBLD98"
+        },
+        {
+          "key": "SUPABASE_SERVICE_ROLE_KEY",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprY3Nvd21zaHdocGVlandmbXBoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0OTQ3MjQ1MSwiZXhwIjoyMDY1MDQ4NDUxfQ.jDYcbnWkAdRp5Ymmby2V85hDgdb_Ed95HyqS6-DI1ZE"
+        }
+      ],
+      "healthCheckPath": "/api/health",
+      "plan": "free",
+      "region": "oregon"
+    }
+  ]
+}
