@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import ProfessionalAdminDashboard from "@/components/admin/professional-admin-dashboard"
+import AdminDashboard from "@/components/admin/admin-dashboard"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Admin Panel | ICU Creative Studio",
-  description: "Professional administrative dashboard for ICU Creative Studio management.",
+  title: "Admin Panel | ICU Creative Studio 1",
+  description: "Administrative dashboard for ICU Creative Studio 1 management.",
 }
 
 export default async function AdminPage() {
@@ -28,5 +28,5 @@ export default async function AdminPage() {
     redirect("/dashboard")
   }
 
-  return <ProfessionalAdminDashboard userRole={member.role} />
+  return <AdminDashboard userRole={member.role} />
 }

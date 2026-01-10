@@ -73,7 +73,7 @@ export default function MyBookings({ bookings: initialBookings }: MyBookingsProp
 
   if (bookings.length === 0) {
     return (
-      <Card id="my-reservations" className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl shadow-secondary/10">
+      <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl shadow-secondary/10">
         <CardHeader className="border-b border-border/50 bg-card/50">
           <CardTitle className="flex items-center gap-2.5 text-lg sm:text-xl text-foreground">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -91,7 +91,7 @@ export default function MyBookings({ bookings: initialBookings }: MyBookingsProp
     )
   }
   return (
-    <Card id="my-reservations" className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl shadow-primary/10">
+    <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-xl shadow-secondary/10">
       <CardHeader className="border-b border-border/50 bg-card/50">
         <CardTitle className="flex items-center gap-2.5 text-lg sm:text-xl text-foreground">
           <Sparkles className="h-5 w-5 text-primary" />

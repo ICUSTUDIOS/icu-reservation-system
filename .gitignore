@@ -25,3 +25,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Playwright MCP persistent browser data
+.playwright-browser-data/
+.playwright-sessions/
+.playwright-storage.json
+
+# Claude Code
+.claude-context/
+
+# MCP secrets (never commit)
+.mcp-secrets.json
